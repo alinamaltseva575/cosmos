@@ -1,50 +1,54 @@
 package main
 
 import (
-	"html/template"
+	"log"
 	"net/http"
+
+	"cosmos/config"
+	"cosmos/internal/handler"
+	"cosmos/pkg/database"
+
+	"github.com/joho/godotenv"
 )
 
-// Структура для данных страницы
-type PageData struct {
-	Title       string
-	CurrentPage string
-}
-
 func main() {
-	// Загружаем шаблоны
-	tmpl := template.Must(template.ParseGlob("templates/*.html"))
+	// Загружаем .env файл
+	if err := godotenv.Load(); err != nil {
+		log.Println("Файл .env не найден")
+	}
 
-	// Настройка маршрутов
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		data := PageData{
-			Title:       "Главная",
-			CurrentPage: "home",
-		}
-		tmpl.ExecuteTemplate(w, "base.html", data)
-	})
+	// Загружаем конфигурацию
+	cfg := config.Load()
 
-	http.HandleFunc("/planets", func(w http.ResponseWriter, r *http.Request) {
-		data := PageData{
-			Title:       "Планеты",
-			CurrentPage: "planets",
-		}
-		tmpl.ExecuteTemplate(w, "base.html", data)
-	})
+	// Подключаемся к БД
+	err := database.Connect(cfg)
+	if err != nil {
+		log.Fatalf("❌ Ошибка подключения к БД: %v", err)
+	}
+	defer database.Close()
 
-	http.HandleFunc("/galaxies", func(w http.ResponseWriter, r *http.Request) {
-		data := PageData{
-			Title:       "Галактики",
-			CurrentPage: "galaxies",
-		}
-		tmpl.ExecuteTemplate(w, "base.html", data)
-	})
+	// Получаем соединение через функцию
+	db := database.GetDB()
 
-	// Статические файлы (CSS)
+	// Создаем обработчик
+	h := handler.NewHandler(db)
+
+	// Настраиваем маршруты
+	http.HandleFunc("/", h.HomeHandler)
+	http.HandleFunc("/planets", h.PlanetsHandler)
+	http.HandleFunc("/planets/", h.PlanetDetailHandler)
+	http.HandleFunc("/galaxies", h.GalaxiesHandler)
+	http.HandleFunc("/galaxies/", h.GalaxyDetailHandler)
+
+	// Статические файлы
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// Запуск сервера
-	println("Сервер запущен на http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	log.Printf("Сервер запущен на http://localhost:%s", cfg.AppPort)
+	log.Printf("База данных: %s", cfg.DBName)
+
+	if err := http.ListenAndServe(":"+cfg.AppPort, nil); err != nil {
+		log.Fatalf("❌ Ошибка запуска сервера: %v", err)
+	}
 }

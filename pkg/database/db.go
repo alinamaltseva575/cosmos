@@ -1,3 +1,4 @@
+// pkg/database/db.go (дополнить)
 package database
 
 import (
@@ -10,28 +11,39 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Connect(cfg config.DatabaseConfig) (*sql.DB, error) {
+var db *sql.DB // приватная переменная
+
+func Connect(cfg *config.Config) error {
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Name, cfg.SSLMode,
+		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode,
 	)
 
-	db, err := sql.Open("postgres", connStr)
+	var err error
+	db, err = sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %w", err)
+		return fmt.Errorf("не удалось подключиться к базе данных: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("failed to ping database: %w", err)
+	if err = db.Ping(); err != nil {
+		return fmt.Errorf("не удалось проверить подключение: %v", err)
 	}
 
-	log.Println("Successfully connected to PostgreSQL")
-	return db, nil
+	log.Println("Подключение к PostgreSQL установлено")
+	return nil
 }
 
-func Close(db *sql.DB) {
+// GetDB возвращает соединение с БД
+func GetDB() *sql.DB {
+	if db == nil {
+		log.Fatal("БД не подключена! Сначала вызовите Connect()")
+	}
+	return db
+}
+
+func Close() {
 	if db != nil {
 		db.Close()
-		log.Println("Database connection closed")
+		log.Println("Подключение к базе данных закрыто")
 	}
 }

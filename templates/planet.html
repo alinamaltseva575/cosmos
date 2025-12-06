@@ -1,0 +1,51 @@
+{{define "content"}} {{with .Planet}}
+<div class="breadcrumbs">
+    <a href="/">Главная</a> > <a href="/planets">Планеты</a> >
+    <span>{{.Name}}</span>
+</div>
+
+<section class="planet-detail">
+    <div class="planet-header">
+        <h1>{{.Name}}</h1>
+        <div class="planet-meta">
+            <span class="planet-type">{{.Type}}</span>
+            {{if .HasLife}}<span class="badge life">🌱 Есть жизнь</span>{{end}}
+            {{if .IsHabitable}}<span class="badge habitable">✅ Обитаема</span
+            >{{end}}
+        </div>
+    </div>
+
+    <div class="planet-content">
+        <div class="planet-stats-grid">
+            <div class="stat-card">
+                <h3>Основные характеристики</h3>
+                <div class="stat">
+                    <span class="stat-label">Диаметр:</span>
+                    <span class="stat-value">{{.DiameterKm}} км</span>
+                </div>
+                {{if .GalaxyName}}
+                <div class="stat">
+                    <span class="stat-label">Галактика:</span>
+                    <span class="stat-value">{{.GalaxyName}}</span>
+                </div>
+                {{end}}
+            </div>
+
+            <div class="planet-description">
+                <h3>Описание</h3>
+                <p>{{.Description}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="planet-actions">
+        <a href="/planets" class="btn">← К списку планет</a>
+    </div>
+</section>
+{{else}}
+<section class="error">
+    <h1>Планета не найдена</h1>
+    <p>Запрошенная планета не существует или была удалена.</p>
+    <a href="/planets" class="btn">Вернуться к списку планет</a>
+</section>
+{{end}} {{end}}

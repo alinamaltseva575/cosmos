@@ -14,19 +14,27 @@
                 <a href="/" class="{{if eq .CurrentPage "home"}}active{{end}}">Главная</a>
                 <a href="/planets" class="{{if eq .CurrentPage "planets"}}active{{end}}">Планеты</a>
                 <a href="/galaxies" class="{{if eq .CurrentPage "galaxies"}}active{{end}}">Галактики</a>
-                <a href="/admin/login" class="admin-link">Админ</a>
+                <a href="/admin/login" class="admin-link">🔐 Админ</a>
             </div>
         </nav>
     </header>
 
     <main>
-        {{/* Здесь будет содержимое конкретной страницы */}}
-        {{template "content" .}}
+        {{/* Этот блок определяет, какой контент показывать */}}
+        {{if eq .CurrentPage "home"}}
+            {{template "home" .}}
+        {{else if eq .CurrentPage "planets"}}
+            {{template "planets" .}}
+        {{else if eq .CurrentPage "galaxies"}}
+            {{template "galaxies" .}}
+        {{else}}
+            {{/* Для админки и других страниц */}}
+            {{template "content" .}}
+        {{end}}
     </main>
 
     <footer>
         <p>© 2025 Cosmos Explorer. Изучайте вселенную с нами!</p>
-        <p><a href="/admin/login">Администратору</a></p>
     </footer>
 </body>
 </html>

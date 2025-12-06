@@ -1,4 +1,4 @@
-{{define "content"}}
+{{define "home"}}
 <section class="hero">
     <h1>Исследуйте Вселенную</h1>
     <p>Откройте для себя удивительный мир планет и галактик</p>
@@ -10,12 +10,12 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon">🌍</div>
-            <div class="stat-number">0</div>
+            <div class="stat-number">{{.PlanetCount}}</div>
             <div class="stat-label">Планет</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">🌌</div>
-            <div class="stat-number">0</div>
+            <div class="stat-number">{{.GalaxyCount}}</div>
             <div class="stat-label">Галактик</div>
         </div>
     </div>

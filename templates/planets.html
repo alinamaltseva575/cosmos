@@ -1,0 +1,120 @@
+{{define "planets"}}
+<section class="hero">
+    <h1>🌍 Планеты</h1>
+    <p>Исследуйте разнообразие планет нашей вселенной</p>
+</section>
+
+<section class="filters">
+    <div class="filter-section">
+        <h3>Фильтры</h3>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Все</button>
+            <button class="filter-btn" data-filter="earthlike">
+                Землеподобные
+            </button>
+            <button class="filter-btn" data-filter="gasgiant">
+                Газовые гиганты
+            </button>
+            <button class="filter-btn" data-filter="habitable">
+                Обитаемые
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="planets-list">
+    {{if .Planets}}
+    <div class="cards-grid">
+        {{range .Planets}}
+        <div
+            class="card planet-card"
+            data-type="{{.Type}}"
+            data-habitable="{{.IsHabitable}}"
+        >
+            <div class="card-header">
+                <h3>{{.Name}}</h3>
+                <span class="planet-type">{{.Type}}</span>
+            </div>
+            <div class="card-content">
+                <div class="planet-stats">
+                    <div class="stat">
+                        <span class="stat-label">Диаметр:</span>
+                        <span class="stat-value">{{.DiameterKm}} км</span>
+                    </div>
+                    {{if .GalaxyName}}
+                    <div class="stat">
+                        <span class="stat-label">Галактика:</span>
+                        <span class="stat-value">{{.GalaxyName}}</span>
+                    </div>
+                    {{end}}
+                    <div class="stat">
+                        <span class="stat-label">Жизнь:</span>
+                        <span class="stat-value">
+                            {{if .HasLife}}🌱 Есть{{else}}❌ Нет{{end}}
+                        </span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Обитаема:</span>
+                        <span class="stat-value">
+                            {{if .IsHabitable}}✅ Да{{else}}❌ Нет{{end}}
+                        </span>
+                    </div>
+                </div>
+                <p class="description">{{.Description}}</p>
+            </div>
+            <div class="card-footer">
+                <a href="/planets/{{.ID}}" class="btn-small">Подробнее</a>
+            </div>
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <div class="empty-state">
+        <p>Планеты пока не добавлены в базу данных.</p>
+    </div>
+    {{end}}
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const filterButtons = document.querySelectorAll(".filter-btn");
+        const planetCards = document.querySelectorAll(".planet-card");
+
+        filterButtons.forEach((button) => {
+            button.addEventListener("click", function () {
+                // Убираем активный класс у всех кнопок
+                filterButtons.forEach((btn) => btn.classList.remove("active"));
+                // Добавляем активный класс текущей кнопке
+                this.classList.add("active");
+
+                const filter = this.dataset.filter;
+
+                // Фильтрация карточек
+                planetCards.forEach((card) => {
+                    const type = card.dataset.type;
+                    const habitable = card.dataset.habitable === "true";
+
+                    let show = false;
+
+                    switch (filter) {
+                        case "all":
+                            show = true;
+                            break;
+                        case "earthlike":
+                            show = type.includes("землеподоб");
+                            break;
+                        case "gasgiant":
+                            show = type.includes("газовый");
+                            break;
+                        case "habitable":
+                            show = habitable === true;
+                            break;
+                    }
+
+                    card.style.display = show ? "block" : "none";
+                });
+            });
+        });
+    });
+</script>
+{{end}}

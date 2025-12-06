@@ -1,0 +1,39 @@
+{{define "galaxies"}}
+<section class="hero">
+    <h1>🌌 Галактики</h1>
+    <p>Исследуйте величественные звёздные системы вселенной</p>
+</section>
+
+<section class="galaxies-list">
+    {{if .Galaxies}}
+    <div class="cards-grid">
+        {{range .Galaxies}}
+        <div class="card galaxy-card">
+            <div class="card-header">
+                <h3>{{.Name}}</h3>
+                <span class="galaxy-type">{{.Type}}</span>
+            </div>
+            <div class="card-content">
+                <div class="galaxy-stats">
+                    {{if .DiameterLy}}
+                    <div class="stat">
+                        <span class="stat-label">Диаметр:</span>
+                        <span class="stat-value">{{.DiameterLy}} св. лет</span>
+                    </div>
+                    {{end}}
+                </div>
+                <p class="description">{{.Description}}</p>
+            </div>
+            <div class="card-footer">
+                <a href="/galaxies/{{.ID}}" class="btn-small">Подробнее</a>
+            </div>
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <div class="empty-state">
+        <p>Галактики пока не добавлены в базу данных.</p>
+    </div>
+    {{end}}
+</section>
+{{end}}
