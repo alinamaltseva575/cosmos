@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Cosmos Explorer</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">🌌 Cosmos Explorer</div>
+            <div class="nav-links">
+                <a href="/" class="{{if eq .CurrentPage "home"}}active{{end}}">Главная</a>
+                <a href="/planets" class="{{if eq .CurrentPage "planets"}}active{{end}}">Планеты</a>
+                <a href="/galaxies" class="{{if eq .CurrentPage "galaxies"}}active{{end}}">Галактики</a>
+                <a href="/admin/login" class="admin-link">Админ</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {{/* Здесь будет содержимое конкретной страницы */}}
+        {{template "content" .}}
+    </main>
+
+    <footer>
+        <p>© 2025 Cosmos Explorer. Изучайте вселенную с нами!</p>
+        <p><a href="/admin/login">Администратору</a></p>
+    </footer>
+</body>
+</html>
