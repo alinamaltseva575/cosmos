@@ -31,12 +31,25 @@ type Galaxy struct {
 	ID                  int       `json:"id"`
 	Name                string    `json:"name"`
 	Type                string    `json:"type"`
-	DiameterLy          *float64  `json:"diameter_ly,omitempty"` // Изменил с *int на *float64
+	DiameterLy          *float64  `json:"diameter_ly,omitempty"`
 	MassSuns            *float64  `json:"mass_suns,omitempty"`
 	DistanceFromEarthLy *float64  `json:"distance_from_earth_ly,omitempty"`
 	DiscoveredYear      *int      `json:"discovered_year,omitempty"`
 	Description         string    `json:"description"`
 	CreatedAt           time.Time `json:"created_at"`
+}
+
+// LoginData - данные для формы входа
+type LoginData struct {
+	Username string
+	Password string
+	Error    string
+}
+
+// AdminData - данные для админ-панели
+type AdminData struct {
+	PageData
+	Users []User
 }
 
 // PageData - данные для передачи в HTML шаблоны
@@ -52,4 +65,5 @@ type PageData struct {
 	// Для будущей авторизации
 	IsAdmin  bool
 	Username string
+	Role     string // ДОБАВЬТЕ ЭТО ПОЛЕ
 }

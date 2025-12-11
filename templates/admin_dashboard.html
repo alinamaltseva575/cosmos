@@ -1,0 +1,71 @@
+{{define "admin_dashboard"}}
+<div class="admin-header">
+    <h1>👑 Админ-панель Cosmos Explorer</h1>
+    <p>Управление контентом сайта</p>
+</div>
+
+<div class="admin-stats">
+    <div class="stat-card admin-stat">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-number">{{.PlanetCount}}</div>
+        <div class="stat-label">Планет</div>
+        <a href="/admin/planets" class="btn-small">Управление</a>
+    </div>
+
+    <div class="stat-card admin-stat">
+        <div class="stat-icon">🌌</div>
+        <div class="stat-number">{{.GalaxyCount}}</div>
+        <div class="stat-label">Галактик</div>
+        <a href="/admin/galaxies" class="btn-small">Управление</a>
+    </div>
+
+    <div class="stat-card admin-stat">
+        <div class="stat-icon">👥</div>
+        <div class="stat-number">1</div>
+        <div class="stat-label">Администраторов</div>
+        <a href="/admin/users" class="btn-small">Просмотр</a>
+    </div>
+</div>
+
+<div class="admin-actions">
+    <div class="action-card">
+        <h3>🌍 Управление планетами</h3>
+        <p>Добавление, редактирование и удаление планет</p>
+        <div class="action-buttons">
+            <a href="/admin/planets" class="btn">Список планет</a>
+            <a href="/admin/planets/new" class="btn btn-success"
+                >+ Добавить планету</a
+            >
+        </div>
+    </div>
+
+    <div class="action-card">
+        <h3>🌌 Управление галактиками</h3>
+        <p>Добавление, редактирование и удаление галактик</p>
+        <div class="action-buttons">
+            <a href="/admin/galaxies" class="btn">Список галактик</a>
+            <a href="/admin/galaxies/new" class="btn btn-success"
+                >+ Добавить галактику</a
+            >
+        </div>
+    </div>
+
+    <div class="action-card">
+        <h3>⚙️ Настройки системы</h3>
+        <p>Управление пользователями и настройками</p>
+        <div class="action-buttons">
+            <a href="/admin/users" class="btn">Пользователи</a>
+            <a href="/admin/settings" class="btn">Настройки</a>
+        </div>
+    </div>
+</div>
+
+<div class="admin-info">
+    <h3>Информация о сессии</h3>
+    <p>Вы вошли как: <strong>{{.Username}}</strong></p>
+    <p>Роль: <span class="badge admin-badge">{{.Role}}</span></p>
+    <form action="/admin/logout" method="POST" style="margin-top: 20px">
+        <button type="submit" class="btn btn-danger">🚪 Выйти</button>
+    </form>
+</div>
+{{end}}

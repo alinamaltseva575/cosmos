@@ -20,30 +20,39 @@
     </header>
 
     <main>
-        {{/* Определяем, какой шаблон показывать */}}
         {{if eq .CurrentPage "home"}}
             {{template "home" .}}
 
         {{else if eq .CurrentPage "planets"}}
             {{if .Planet}}
-                {{/* Детальная страница планеты */}}
                 {{template "planet_detail" .}}
             {{else}}
-                {{/* Список планет */}}
                 {{template "planets" .}}
             {{end}}
 
         {{else if eq .CurrentPage "galaxies"}}
             {{if .Galaxy}}
-                {{/* Детальная страница галактики */}}
                 {{template "galaxy_detail" .}}
             {{else}}
-                {{/* Список галактик */}}
                 {{template "galaxies" .}}
             {{end}}
 
+        {{else if eq .CurrentPage "admin_login"}}
+            {{template "admin_login" .}}
+
+        {{else if eq .CurrentPage "admin"}}
+            {{template "admin_dashboard" .}}
+
+        {{else if eq .CurrentPage "admin_planets"}}
+            {{template "admin_planets" .}}
+
+        {{else if eq .CurrentPage "admin_planet_form"}}
+            {{template "admin_planet_form" .}}
+
+        {{else if eq .CurrentPage "admin_login"}}
+            {{template "admin_login" .}}
+
         {{else}}
-            {{/* Для других страниц (например, админки) */}}
             <h1>Страница в разработке</h1>
             <p>Эта страница пока не доступна.</p>
             <a href="/">Вернуться на главную</a>
