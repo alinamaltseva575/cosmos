@@ -4,36 +4,52 @@
     <p>Исследуйте величественные звёздные системы вселенной</p>
 </section>
 
-<section class="galaxies-list">
-    {{if .Galaxies}}
-    <div class="cards-grid">
-        {{range .Galaxies}}
-        <div class="card galaxy-card">
-            <div class="card-header">
-                <h3>{{.Name}}</h3>
-                <span class="galaxy-type">{{.Type}}</span>
-            </div>
-            <div class="card-content">
-                <div class="galaxy-stats">
-                    {{if .DiameterLy}}
-                    <div class="stat">
-                        <span class="stat-label">Диаметр:</span>
-                        <span class="stat-value">{{.DiameterLy}} св. лет</span>
-                    </div>
-                    {{end}}
-                </div>
-                <p class="description">{{.Description}}</p>
-            </div>
-            <div class="card-footer">
-                <a href="/galaxies/{{.ID}}" class="btn-small">Подробнее</a>
-            </div>
+{{if .Galaxies}}
+<div class="cards-grid">
+    {{range .Galaxies}}
+    <div class="card">
+        <div class="card-header">
+            <h3>{{.Name}}</h3>
+            <span class="galaxy-type">{{.Type}}</span>
         </div>
-        {{end}}
-    </div>
-    {{else}}
-    <div class="empty-state">
-        <p>Галактики пока не добавлены в базу данных.</p>
+        <div class="card-content">
+            <div class="galaxy-stats">
+                {{if .DiameterLy}}
+                <div class="stat">
+                    <span class="stat-label">Диаметр:</span>
+                    <span class="stat-value">{{.DiameterLy}} св. лет</span>
+                </div>
+                {{end}} {{if .MassSuns}}
+                <div class="stat">
+                    <span class="stat-label">Масса:</span>
+                    <span class="stat-value"
+                        >{{formatNumber .MassSuns}} масс Солнца</span
+                    >
+                </div>
+                {{end}} {{if .DistanceFromEarthLy}}
+                <div class="stat">
+                    <span class="stat-label">Расстояние:</span>
+                    <span class="stat-value"
+                        >{{formatNumber .DistanceFromEarthLy}} св. лет</span
+                    >
+                </div>
+                {{end}} {{if .DiscoveredYear}}
+                <div class="stat">
+                    <span class="stat-label">Открыта:</span>
+                    <span class="stat-value">{{.DiscoveredYear}} год</span>
+                </div>
+                {{end}}
+            </div>
+            <p class="description">{{.Description}}</p>
+        </div>
+        <div class="card-footer">
+            <a href="/galaxies/{{.ID}}" class="btn-small">Подробнее</a>
+        </div>
     </div>
     {{end}}
-</section>
-{{end}}
+</div>
+{{else}}
+<div class="empty-state">
+    <p>Галактики пока не добавлены в базу данных.</p>
+</div>
+{{end}} {{end}}

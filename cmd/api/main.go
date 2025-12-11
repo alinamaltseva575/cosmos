@@ -23,7 +23,7 @@ func main() {
 	// Подключаемся к БД
 	err := database.Connect(cfg)
 	if err != nil {
-		log.Fatalf("❌ Ошибка подключения к БД: %v", err)
+		log.Fatalf("Ошибка подключения к БД: %v", err)
 	}
 	defer database.Close()
 
@@ -49,6 +49,6 @@ func main() {
 	log.Printf("База данных: %s", cfg.DBName)
 
 	if err := http.ListenAndServe(":"+cfg.AppPort, nil); err != nil {
-		log.Fatalf("❌ Ошибка запуска сервера: %v", err)
+		log.Fatalf("Ошибка запуска сервера: %v", err)
 	}
 }

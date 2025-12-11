@@ -1,3 +1,6 @@
+-- Создание таблиц с явным указанием кодировки
+SET client_encoding = 'UTF8';
+
 -- Создание таблиц
 CREATE TABLE IF NOT EXISTS galaxies (
     id SERIAL PRIMARY KEY,

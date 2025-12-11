@@ -23,7 +23,20 @@
                     <span class="stat-label">Диаметр:</span>
                     <span class="stat-value">{{.DiameterKm}} км</span>
                 </div>
-                {{if .GalaxyName}}
+                <div class="stat">
+                    <span class="stat-label">Масса:</span>
+                    <span class="stat-value">{{formatMass .MassKg}}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Орбитальный период:</span>
+                    <span class="stat-value">{{.OrbitalPeriodDays}} дней</span>
+                </div>
+                {{if .DiscoveredYear}}
+                <div class="stat">
+                    <span class="stat-label">Год открытия:</span>
+                    <span class="stat-value">{{.DiscoveredYear}}</span>
+                </div>
+                {{end}} {{if .GalaxyName}}
                 <div class="stat">
                     <span class="stat-label">Галактика:</span>
                     <span class="stat-value">{{.GalaxyName}}</span>
