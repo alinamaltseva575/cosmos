@@ -1,0 +1,44 @@
+{{define "login"}}
+<div class="login-container">
+    <div class="login-box">
+        <h1>🔐 Вход в админ-панель</h1>
+
+        {{if .Error}}
+        <div class="error-message">{{.Error}}</div>
+        {{end}}
+
+        <form method="POST" action="/admin/login">
+            <div class="form-group">
+                <label for="username">Логин:</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    placeholder="Введите логин"
+                    value="{{.Username}}"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Введите пароль"
+                />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+
+        <div class="login-info">
+            <p><strong>Тестовые данные:</strong></p>
+            <p>Логин: <code>admin</code></p>
+            <p>Пароль: <code>admin123</code></p>
+        </div>
+    </div>
+</div>
+{{end}}

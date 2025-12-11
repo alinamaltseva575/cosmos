@@ -1,0 +1,66 @@
+{{define "galaxy_detail"}} {{with .Galaxy}}
+<div class="breadcrumbs">
+    <a href="/">Главная</a> > <a href="/galaxies">Галактики</a> >
+    <span>{{.Name}}</span>
+</div>
+
+<section class="galaxy-detail">
+    <div class="galaxy-header">
+        <h1>{{.Name}}</h1>
+        <div class="galaxy-meta">
+            <span class="galaxy-type">{{.Type}}</span>
+        </div>
+    </div>
+
+    <div class="galaxy-content">
+        <div class="galaxy-stats-grid">
+            <div class="stat-card">
+                <h3>Основные характеристики</h3>
+                {{if .DiameterLy}}
+                <div class="stat">
+                    <span class="stat-label">Диаметр:</span>
+                    <span class="stat-value"
+                        >{{formatNumber .DiameterLy}} световых лет</span
+                    >
+                </div>
+                {{end}} {{if .MassSuns}}
+                <div class="stat">
+                    <span class="stat-label">Масса:</span>
+                    <span class="stat-value"
+                        >{{formatNumber .MassSuns}} масс Солнца</span
+                    >
+                </div>
+                {{end}} {{if .DistanceFromEarthLy}}
+                <div class="stat">
+                    <span class="stat-label">Расстояние от Земли:</span>
+                    <span class="stat-value"
+                        >{{formatNumber .DistanceFromEarthLy}} световых
+                        лет</span
+                    >
+                </div>
+                {{end}} {{if .DiscoveredYear}}
+                <div class="stat">
+                    <span class="stat-label">Год открытия:</span>
+                    <span class="stat-value">{{.DiscoveredYear}}</span>
+                </div>
+                {{end}}
+            </div>
+
+            <div class="galaxy-description">
+                <h3>Описание</h3>
+                <p>{{.Description}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="galaxy-actions">
+        <a href="/galaxies" class="btn">← К списку галактик</a>
+    </div>
+</section>
+{{else}}
+<section class="error">
+    <h1>Галактика не найдена</h1>
+    <p>Запрошенная галактика не существует или была удалена.</p>
+    <a href="/galaxies" class="btn">Вернуться к списку галактик</a>
+</section>
+{{end}} {{end}}

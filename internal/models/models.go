@@ -31,7 +31,7 @@ type Galaxy struct {
 	ID                  int       `json:"id"`
 	Name                string    `json:"name"`
 	Type                string    `json:"type"`
-	DiameterLy          *int      `json:"diameter_ly,omitempty"`
+	DiameterLy          *float64  `json:"diameter_ly,omitempty"` // Изменил с *int на *float64
 	MassSuns            *float64  `json:"mass_suns,omitempty"`
 	DistanceFromEarthLy *float64  `json:"distance_from_earth_ly,omitempty"`
 	DiscoveredYear      *int      `json:"discovered_year,omitempty"`

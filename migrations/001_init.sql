@@ -1,5 +1,5 @@
 -- Создание таблиц с явным указанием кодировки
-SET client_encoding = 'UTF8';
+SET client_encoding = 'UTF8';git add .
 
 -- Создание таблиц
 CREATE TABLE IF NOT EXISTS galaxies (

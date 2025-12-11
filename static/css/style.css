@@ -257,4 +257,251 @@ footer a {
     .cards-grid {
         grid-template-columns: 1fr;
     }
+
+    /* Детальные страницы - общие стили */
+    .breadcrumbs {
+        margin-bottom: 2rem;
+        color: #cccccc;
+        font-size: 0.9rem;
+    }
+
+    .breadcrumbs a {
+        color: #4cc9f0;
+        text-decoration: none;
+    }
+
+    .breadcrumbs a:hover {
+        text-decoration: underline;
+    }
+
+    /* Детальная страница планеты */
+    .planet-detail,
+    .galaxy-detail {
+        background-color: #1a1a2e;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .planet-header,
+    .galaxy-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #2a2a3e;
+    }
+
+    .planet-header h1,
+    .galaxy-header h1 {
+        color: #4cc9f0;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .planet-meta,
+    .galaxy-meta {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .planet-type,
+    .galaxy-type {
+        background-color: #2a2a3e;
+        color: #4cc9f0;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+
+    .badge.life {
+        background-color: #2e7d32;
+        color: white;
+    }
+
+    .badge.habitable {
+        background-color: #1565c0;
+        color: white;
+    }
+
+    .planet-stats-grid,
+    .galaxy-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 3rem;
+        margin: 2rem 0;
+    }
+
+    @media (max-width: 768px) {
+        .planet-stats-grid,
+        .galaxy-stats-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .stat-card {
+        background-color: #2a2a3e;
+        padding: 1.5rem;
+        border-radius: 10px;
+        border-left: 4px solid #4cc9f0;
+    }
+
+    .stat-card h3 {
+        color: #4cc9f0;
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+
+    .stat {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #3a3a4e;
+    }
+
+    .stat:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .stat-label {
+        color: #cccccc;
+    }
+
+    .stat-value {
+        font-weight: bold;
+        color: white;
+    }
+
+    .planet-description,
+    .galaxy-description {
+        background-color: #2a2a3e;
+        padding: 1.5rem;
+        border-radius: 10px;
+    }
+
+    .planet-description h3,
+    .galaxy-description h3 {
+        color: #4cc9f0;
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .planet-description p,
+    .galaxy-description p {
+        color: #cccccc;
+        line-height: 1.6;
+    }
+
+    .planet-actions,
+    .galaxy-actions {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #2a2a3e;
+    }
+
+    /* Страница ошибки */
+    .error {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: #1a1a2e;
+        border-radius: 10px;
+        border-left: 4px solid #f44336;
+    }
+
+    .error h1 {
+        color: #f44336;
+        margin-bottom: 1rem;
+    }
+
+    .error p {
+        color: #cccccc;
+        margin-bottom: 2rem;
+    }
+
+    /* Аутентификация */
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        padding: 20px;
+    }
+
+    .login-box {
+        background-color: #1a1a2e;
+        padding: 40px;
+        border-radius: 10px;
+        border: 2px solid #4cc9f0;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-box h1 {
+        color: #4cc9f0;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        color: #ddd;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px;
+        background-color: #2a2a3e;
+        border: 1px solid #3a3a4e;
+        border-radius: 5px;
+        color: white;
+        font-size: 16px;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #4cc9f0;
+        box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+    }
+
+    .error-message {
+        background-color: rgba(244, 67, 54, 0.1);
+        border: 1px solid #f44336;
+        color: #f44336;
+        padding: 12px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .login-info {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #2a2a3e;
+        border-radius: 5px;
+        font-size: 14px;
+        color: #aaa;
+    }
+
+    .login-info code {
+        background-color: #3a3a4e;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: monospace;
+    }
 }

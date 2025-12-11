@@ -36,6 +36,9 @@ func NewHandler(db *sql.DB) *Handler {
 			if num >= 1e6 {
 				return fmt.Sprintf("%.1f млн", num/1e6)
 			}
+			if num >= 1e3 {
+				return fmt.Sprintf("%.0f тыс", num/1e3)
+			}
 			return fmt.Sprintf("%.0f", num)
 		},
 		"formatMass": func(mass float64) string {
@@ -49,10 +52,10 @@ func NewHandler(db *sql.DB) *Handler {
 		},
 	}
 
-	// Парсим шаблоны
+	// Парсим шаблоны из templates/ и templates/admin/
 	tmpl := template.New("").Funcs(funcMap)
 
-	// Важно: указываем путь относительно корня проекта
+	// Парсим все HTML файлы в папке templates
 	tmpl, err := tmpl.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Printf("❌ Ошибка парсинга шаблонов: %v", err)
@@ -68,10 +71,15 @@ func NewHandler(db *sql.DB) *Handler {
 			</html>`))
 	}
 
-	log.Printf("✅ Шаблоны загружены: %d штук", len(tmpl.Templates()))
+	// Проверяем, какие шаблоны загрузились
+	templateNames := []string{}
 	for _, t := range tmpl.Templates() {
-		log.Printf("   - %s", t.Name())
+		if t.Name() != "" && t.Name() != "base" {
+			templateNames = append(templateNames, t.Name())
+		}
 	}
+
+	log.Printf("✅ Шаблоны загружены: %v", templateNames)
 
 	return &Handler{
 		DB:   db,
@@ -113,6 +121,7 @@ func (h *Handler) HomeHandler(w http.ResponseWriter, r *http.Request) {
 		GalaxyCount: galaxyCount,
 	}
 
+	// Используем базовый шаблон base.html
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Printf("❌ Ошибка выполнения шаблона home: %v", err)
@@ -136,11 +145,13 @@ func (h *Handler) PlanetsHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := h.DB.Query(query)
 	if err != nil {
 		log.Printf("❌ Ошибка SQL запроса планет: %v", err)
+		// Создаем данные с пустым списком планет
 		data := models.PageData{
 			Title:       "Планеты",
 			CurrentPage: "planets",
 			Planets:     []models.Planet{},
 		}
+		// Указываем явно какой шаблон использовать для контента
 		h.Tmpl.ExecuteTemplate(w, "base.html", data)
 		return
 	}
@@ -149,6 +160,7 @@ func (h *Handler) PlanetsHandler(w http.ResponseWriter, r *http.Request) {
 	var planets []models.Planet
 	for rows.Next() {
 		var p models.Planet
+
 		err := rows.Scan(
 			&p.ID, &p.Name, &p.Type, &p.DiameterKm, &p.MassKg,
 			&p.OrbitalPeriodDays, &p.HasLife, &p.IsHabitable,
@@ -158,13 +170,15 @@ func (h *Handler) PlanetsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("❌ Ошибка сканирования планеты: %v", err)
 			continue
 		}
+
 		planets = append(planets, p)
 	}
 
-	log.Printf("✅ Найдено планет: %d", len(planets))
-	for _, p := range planets {
-		log.Printf("   - %s (тип: %s)", p.Name, p.Type)
+	if err = rows.Err(); err != nil {
+		log.Printf("❌ Ошибка итерации планет: %v", err)
 	}
+
+	log.Printf("✅ Найдено планет: %d", len(planets))
 
 	data := models.PageData{
 		Title:       "Планеты",
@@ -172,10 +186,12 @@ func (h *Handler) PlanetsHandler(w http.ResponseWriter, r *http.Request) {
 		Planets:     planets,
 	}
 
+	// Сначала парсим шаблон планет, потом base
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Printf("❌ Ошибка выполнения шаблона planets: %v", err)
-		http.Error(w, "Ошибка шаблона", http.StatusInternalServerError)
+		// Показываем простую ошибку пользователю
+		http.Error(w, "Ошибка отображения страницы. Проверьте консоль сервера.", http.StatusInternalServerError)
 	}
 }
 
@@ -196,6 +212,8 @@ func (h *Handler) PlanetDetailHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var planet models.Planet
+	var discoveredYear sql.NullInt64
+
 	err = h.DB.QueryRow(`
 		SELECT p.id, p.name, p.type, p.diameter_km, p.mass_kg,
 		       p.orbital_period_days, p.has_life, p.is_habitable,
@@ -207,21 +225,33 @@ func (h *Handler) PlanetDetailHandler(w http.ResponseWriter, r *http.Request) {
 	`, id).Scan(
 		&planet.ID, &planet.Name, &planet.Type, &planet.DiameterKm,
 		&planet.MassKg, &planet.OrbitalPeriodDays, &planet.HasLife,
-		&planet.IsHabitable, &planet.DiscoveredYear, &planet.Description,
+		&planet.IsHabitable, &discoveredYear, &planet.Description,
 		&planet.GalaxyName,
 	)
 
 	if err != nil {
-		log.Printf("❌ Планета не найдена ID %d: %v", id, err)
-		data := models.PageData{
-			Title:       "Не найдено",
-			CurrentPage: "planets",
+		if err == sql.ErrNoRows {
+			log.Printf("❌ Планета с ID %d не найдена", id)
+			// Показываем страницу 404
+			data := models.PageData{
+				Title:       "Планета не найдена",
+				CurrentPage: "planets",
+			}
+			h.Tmpl.ExecuteTemplate(w, "base.html", data)
+			return
 		}
-		h.Tmpl.ExecuteTemplate(w, "base.html", data)
+		log.Printf("❌ Ошибка запроса планеты ID %d: %v", id, err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("✅ Найдена планета: %s", planet.Name)
+	// Обрабатываем nullable поля
+	if discoveredYear.Valid {
+		year := int(discoveredYear.Int64)
+		planet.DiscoveredYear = &year
+	}
+
+	log.Printf("✅ Найдена планета: %s (ID: %d)", planet.Name, planet.ID)
 
 	data := models.PageData{
 		Title:       planet.Name,
@@ -229,10 +259,17 @@ func (h *Handler) PlanetDetailHandler(w http.ResponseWriter, r *http.Request) {
 		Planet:      &planet,
 	}
 
+	// Используем шаблон planet.html внутри base.html
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Printf("❌ Ошибка выполнения шаблона planet detail: %v", err)
-		http.Error(w, "Ошибка шаблона", http.StatusInternalServerError)
+		log.Printf("Доступные шаблоны:")
+		for _, t := range h.Tmpl.Templates() {
+			if t.Name() != "" {
+				log.Printf("  - %s", t.Name())
+			}
+		}
+		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
 
@@ -262,15 +299,41 @@ func (h *Handler) GalaxiesHandler(w http.ResponseWriter, r *http.Request) {
 	var galaxies []models.Galaxy
 	for rows.Next() {
 		var g models.Galaxy
+		var diameterLy, massSuns, distanceFromEarthLy sql.NullFloat64
+		var discoveredYear sql.NullInt64
+
 		err := rows.Scan(
-			&g.ID, &g.Name, &g.Type, &g.DiameterLy, &g.MassSuns,
-			&g.DistanceFromEarthLy, &g.DiscoveredYear, &g.Description,
+			&g.ID, &g.Name, &g.Type, &diameterLy, &massSuns,
+			&distanceFromEarthLy, &discoveredYear, &g.Description,
 		)
 		if err != nil {
 			log.Printf("❌ Ошибка сканирования галактики: %v", err)
 			continue
 		}
+
+		// Обрабатываем nullable поля - исправлено здесь
+		if diameterLy.Valid {
+			val := diameterLy.Float64
+			g.DiameterLy = &val
+		}
+		if massSuns.Valid {
+			val := massSuns.Float64
+			g.MassSuns = &val
+		}
+		if distanceFromEarthLy.Valid {
+			val := distanceFromEarthLy.Float64
+			g.DistanceFromEarthLy = &val
+		}
+		if discoveredYear.Valid {
+			year := int(discoveredYear.Int64)
+			g.DiscoveredYear = &year
+		}
+
 		galaxies = append(galaxies, g)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("❌ Ошибка итерации галактик: %v", err)
 	}
 
 	log.Printf("✅ Найдено галактик: %d", len(galaxies))
@@ -284,7 +347,7 @@ func (h *Handler) GalaxiesHandler(w http.ResponseWriter, r *http.Request) {
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Printf("❌ Ошибка выполнения шаблона galaxies: %v", err)
-		http.Error(w, "Ошибка шаблона", http.StatusInternalServerError)
+		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
 
@@ -305,26 +368,53 @@ func (h *Handler) GalaxyDetailHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var galaxy models.Galaxy
+	var diameterLy, massSuns, distanceFromEarthLy sql.NullFloat64
+	var discoveredYear sql.NullInt64
+
 	err = h.DB.QueryRow(`
 		SELECT id, name, type, diameter_ly, mass_suns,
 		       distance_from_earth_ly, discovered_year, description
 		FROM galaxies
 		WHERE id = $1
 	`, id).Scan(
-		&galaxy.ID, &galaxy.Name, &galaxy.Type, &galaxy.DiameterLy,
-		&galaxy.MassSuns, &galaxy.DistanceFromEarthLy,
-		&galaxy.DiscoveredYear, &galaxy.Description,
+		&galaxy.ID, &galaxy.Name, &galaxy.Type, &diameterLy, &massSuns,
+		&distanceFromEarthLy, &discoveredYear, &galaxy.Description,
 	)
 
 	if err != nil {
-		log.Printf("❌ Галактика не найдена ID %d: %v", id, err)
-		data := models.PageData{
-			Title:       "Не найдено",
-			CurrentPage: "galaxies",
+		if err == sql.ErrNoRows {
+			log.Printf("❌ Галактика с ID %d не найдена", id)
+			data := models.PageData{
+				Title:       "Галактика не найдена",
+				CurrentPage: "galaxies",
+			}
+			h.Tmpl.ExecuteTemplate(w, "base.html", data)
+			return
 		}
-		h.Tmpl.ExecuteTemplate(w, "base.html", data)
+		log.Printf("❌ Ошибка запроса галактики ID %d: %v", id, err)
+		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
+
+	// Обрабатываем nullable поля - исправлено здесь
+	if diameterLy.Valid {
+		val := diameterLy.Float64
+		galaxy.DiameterLy = &val
+	}
+	if massSuns.Valid {
+		val := massSuns.Float64
+		galaxy.MassSuns = &val
+	}
+	if distanceFromEarthLy.Valid {
+		val := distanceFromEarthLy.Float64
+		galaxy.DistanceFromEarthLy = &val
+	}
+	if discoveredYear.Valid {
+		year := int(discoveredYear.Int64)
+		galaxy.DiscoveredYear = &year
+	}
+
+	log.Printf("✅ Найдена галактика: %s (ID: %d)", galaxy.Name, galaxy.ID)
 
 	data := models.PageData{
 		Title:       galaxy.Name,
@@ -335,6 +425,6 @@ func (h *Handler) GalaxyDetailHandler(w http.ResponseWriter, r *http.Request) {
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
 		log.Printf("❌ Ошибка выполнения шаблона galaxy detail: %v", err)
-		http.Error(w, "Ошибка шаблона", http.StatusInternalServerError)
+		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
