@@ -62,9 +62,9 @@ func main() {
 	// Пользователи
 	http.HandleFunc("/admin/users", h.AdminUsersHandler)
 	http.HandleFunc("/admin/users/new", h.AdminNewUserHandler)
-	http.HandleFunc("/admin/users/delete/", h.AdminDeleteUserHandler) // ПРОСТОЙ путь
-	http.HandleFunc("/admin/users/edit/", h.AdminEditUserHandler)     // ПРОСТОЙ путь
-	http.HandleFunc("/admin/users/view/", h.AdminUserDetailHandler)   // ДЛЯ ПРОСМОТРА
+	http.HandleFunc("/admin/users/delete/", h.AdminDeleteUserHandler)
+	http.HandleFunc("/admin/users/edit/", h.AdminEditUserHandler)
+	http.HandleFunc("/admin/users/view/", h.AdminUserDetailHandler)
 
 	// Статические файлы
 	fs := http.FileServer(http.Dir("static"))

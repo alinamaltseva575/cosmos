@@ -124,7 +124,7 @@ func (h *Handler) AdminDashboardHandler(w http.ResponseWriter, r *http.Request) 
 		CurrentPage: "admin",
 		PlanetCount: planetCount,
 		GalaxyCount: galaxyCount,
-		UserCount:   adminCount, // Теперь динамическое количество админов
+		UserCount:   adminCount,
 		IsAdmin:     true,
 		Username:    claims.Username,
 		Role:        claims.Role,

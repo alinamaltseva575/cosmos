@@ -98,11 +98,11 @@ func NewHandler(db *sql.DB) *Handler {
 	// Парсим ВСЕ HTML файлы
 	tmpl, err := tmpl.ParseGlob("templates/*.html")
 	if err != nil {
-		log.Printf("❌ Ошибка парсинга шаблонов: %v", err)
+		log.Printf("Ошибка парсинга шаблонов: %v", err)
 	}
 
 	// Проверяем, какие шаблоны загрузились
-	log.Printf("📋 Загруженные шаблоны:")
+	log.Printf("Загруженные шаблоны:")
 	for _, t := range tmpl.Templates() {
 		if t.Name() != "" {
 			log.Printf("  - %s", t.Name())

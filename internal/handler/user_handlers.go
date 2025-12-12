@@ -29,7 +29,7 @@ func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 		ORDER BY id DESC
 	`)
 	if err != nil {
-		log.Printf("❌ Ошибка SQL запроса пользователей: %v", err)
+		log.Printf("Ошибка SQL запроса пользователей: %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
@@ -40,7 +40,7 @@ func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 		var user models.User
 		err := rows.Scan(&user.ID, &user.Username, &user.Email, &user.Role, &user.CreatedAt)
 		if err != nil {
-			log.Printf("❌ Ошибка сканирования пользователя: %v", err)
+			log.Printf("Ошибка сканирования пользователя: %v", err)
 			continue
 		}
 		users = append(users, user)
@@ -55,41 +55,7 @@ func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_users: %v", err)
-		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
-	}
-}
-
-// AdminSettingsHandler - страница настроек
-func (h *Handler) AdminSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	h.setEncoding(w)
-
-	// Проверяем авторизацию
-	_, err := h.requireAdminAuth(w, r)
-	if err != nil {
-		return
-	}
-
-	// Получаем статистику
-	var planetCount, galaxyCount, userCount int
-	h.DB.QueryRow("SELECT COUNT(*) FROM planets").Scan(&planetCount)
-	h.DB.QueryRow("SELECT COUNT(*) FROM galaxies").Scan(&galaxyCount)
-	h.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&userCount)
-
-	data := models.PageData{
-		Title:       "Настройки системы",
-		CurrentPage: "admin_settings",
-		PlanetCount: planetCount,
-		GalaxyCount: galaxyCount,
-		UserCount:   userCount,
-		IsAdmin:     true,
-		AppPort:     "8080", // Можно взять из конфига
-		Environment: "development",
-	}
-
-	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
-	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_settings: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_users: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -129,7 +95,7 @@ func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request)
 		if err.Error() == "sql: no rows in result set" {
 			http.NotFound(w, r)
 		} else {
-			log.Printf("❌ Ошибка получения пользователя: %v", err)
+			log.Printf("Ошибка получения пользователя: %v", err)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		}
 		return
@@ -149,7 +115,7 @@ func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request)
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_user_detail: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_user_detail: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -210,7 +176,7 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 				// Хэшируем пароль
 				hashedPassword, err := auth.HashPassword(password)
 				if err != nil {
-					log.Printf("❌ Ошибка хэширования пароля: %v", err)
+					log.Printf("Ошибка хэширования пароля: %v", err)
 					data.Error = "Ошибка сервера"
 				} else {
 					// Сохраняем пользователя
@@ -222,10 +188,10 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 					).Scan(&userID)
 
 					if err != nil {
-						log.Printf("❌ Ошибка создания пользователя: %v", err)
+						log.Printf("Ошибка создания пользователя: %v", err)
 						data.Error = "Ошибка сохранения в базу данных"
 					} else {
-						log.Printf("✅ Создан пользователь: %s (ID: %d, роль: %s)", username, userID, role)
+						log.Printf("Создан пользователь: %s (ID: %d, роль: %s)", username, userID, role)
 						http.Redirect(w, r, "/admin/users", http.StatusFound)
 						return
 					}
@@ -236,7 +202,7 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_user_form: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_user_form: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -286,7 +252,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		if err == sql.ErrNoRows {
 			http.NotFound(w, r)
 		} else {
-			log.Printf("❌ Ошибка получения пользователя: %v", err)
+			log.Printf("Ошибка получения пользователя: %v", err)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		}
 		return
@@ -339,7 +305,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 					// Обновляем с паролем
 					hashedPassword, err := auth.HashPassword(password)
 					if err != nil {
-						log.Printf("❌ Ошибка хэширования пароля: %v", err)
+						log.Printf("Ошибка хэширования пароля: %v", err)
 						data.Error = "Ошибка сервера"
 					} else {
 						query = `UPDATE users SET username = $1, email = $2, role = $3, password_hash = $4 WHERE id = $5`
@@ -354,7 +320,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 				if query != "" {
 					result, err := h.DB.Exec(query, args...)
 					if err != nil {
-						log.Printf("❌ Ошибка обновления пользователя: %v", err)
+						log.Printf("Ошибка обновления пользователя: %v", err)
 						data.Error = "Ошибка сохранения в базу данных"
 					} else {
 						rowsAffected, _ := result.RowsAffected()
@@ -363,7 +329,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 							data.User.Username = username
 							data.User.Email = email
 							data.User.Role = role
-							log.Printf("✅ Обновлен пользователь ID %d", id)
+							log.Printf("Обновлен пользователь ID %d", id)
 						}
 					}
 				}
@@ -373,7 +339,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_user_form (edit): %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_user_form (edit): %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -425,7 +391,7 @@ func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request)
 	// Удаляем пользователя
 	result, err := h.DB.Exec("DELETE FROM users WHERE id = $1", id)
 	if err != nil {
-		log.Printf("❌ Ошибка удаления пользователя %d: %v", id, err)
+		log.Printf("Ошибка удаления пользователя %d: %v", id, err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
@@ -436,13 +402,13 @@ func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	log.Printf("✅ Пользователь удален: %s (ID %d)", username, id)
+	log.Printf("Пользователь удален: %s (ID %d)", username, id)
 	http.Redirect(w, r, "/admin/users?success=Пользователь+"+username+"+удален", http.StatusFound)
 }
 
-// Добавим функцию подтверждения для пользователей
+// Добавим функцию подтверждения удаления для пользователей
 func (h *Handler) showDeleteUserConfirmation(w http.ResponseWriter, r *http.Request, id int) {
-	log.Printf("🔍 showDeleteUserConfirmation вызван для ID: %d", id)
+	log.Printf("showDeleteUserConfirmation вызван для ID: %d", id)
 
 	h.setEncoding(w)
 
@@ -455,7 +421,7 @@ func (h *Handler) showDeleteUserConfirmation(w http.ResponseWriter, r *http.Requ
     `, id).Scan(&user.ID, &user.Username, &user.Email, &user.Role, &user.CreatedAt)
 
 	if err != nil {
-		log.Printf("❌ Ошибка получения пользователя для удаления: %v", err)
+		log.Printf("Ошибка получения пользователя для удаления: %v", err)
 		if err == sql.ErrNoRows {
 			http.NotFound(w, r)
 		} else {
@@ -491,13 +457,13 @@ func (h *Handler) showDeleteUserConfirmation(w http.ResponseWriter, r *http.Requ
 		PlanetCount: 0,
 	}
 
-	log.Printf("📊 Данные для шаблона пользователя: ObjectType=%s, ObjectName=%s, Role=%s",
+	log.Printf("Данные для шаблона пользователя: ObjectType=%s, ObjectName=%s, Role=%s",
 		data.ObjectType, data.ObjectName, user.Role)
 
 	// Пробуем выполнить шаблон
 	err = h.Tmpl.ExecuteTemplate(w, "admin_confirm_delete", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_confirm_delete для пользователя: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_confirm_delete для пользователя: %v", err)
 
 		// Покажем простую страницу ошибки
 		fmt.Fprintf(w, `

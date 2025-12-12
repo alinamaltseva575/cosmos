@@ -63,7 +63,7 @@ func (h *Handler) AdminGalaxiesHandler(w http.ResponseWriter, r *http.Request) {
 	h.DB.QueryRow("SELECT COUNT(*) FROM galaxies").Scan(&galaxyCount)
 
 	// Получаем сообщение об успехе из URL параметра
-	success := r.URL.Query().Get("success") // ВОТ ТАК ДОБАВИТЬ
+	success := r.URL.Query().Get("success")
 
 	data := models.PageData{
 		Title:       "Управление галактиками",
@@ -71,7 +71,7 @@ func (h *Handler) AdminGalaxiesHandler(w http.ResponseWriter, r *http.Request) {
 		Galaxies:    galaxies,
 		GalaxyCount: galaxyCount,
 		IsAdmin:     true,
-		Success:     success, // ВОТ ТАК ДОБАВИТЬ
+		Success:     success,
 	}
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
@@ -128,7 +128,7 @@ func (h *Handler) AdminNewGalaxyHandler(w http.ResponseWriter, r *http.Request) 
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_galaxy_form: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_galaxy_form: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -239,7 +239,7 @@ func (h *Handler) AdminEditGalaxyHandler(w http.ResponseWriter, r *http.Request)
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_galaxy_form (edit): %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_galaxy_form (edit): %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -310,7 +310,7 @@ func (h *Handler) AdminDeleteGalaxyHandler(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/admin/galaxies?success=Галактика+"+galaxyName+"+удалена", http.StatusFound)
 }
 
-// Добавить вспомогательную функцию
+// Вспомогательная функция
 func (h *Handler) showDeleteGalaxyConfirmation(w http.ResponseWriter, r *http.Request, id int) {
 	log.Printf("🔍 showDeleteGalaxyConfirmation вызван для ID: %d", id)
 
@@ -372,7 +372,7 @@ func (h *Handler) showDeleteGalaxyConfirmation(w http.ResponseWriter, r *http.Re
 		PlanetCount: planetCount,
 	}
 
-	log.Printf("📊 Данные для шаблона галактики: ObjectType=%s, ObjectName=%s, HasPlanets=%v",
+	log.Printf("Данные для шаблона галактики: ObjectType=%s, ObjectName=%s, HasPlanets=%v",
 		data.ObjectType, data.ObjectName, data.HasPlanets)
 
 	// Пробуем выполнить шаблон
@@ -394,7 +394,7 @@ func (h *Handler) showDeleteGalaxyConfirmation(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// ========== Вспомогательные методы для галактик ==========
+//Вспомогательные методы для галактик
 
 func (h *Handler) parseGalaxyForm(r *http.Request) (models.Galaxy, error) {
 	var galaxy models.Galaxy
@@ -525,7 +525,7 @@ func (h *Handler) updateGalaxy(id int, galaxy *models.Galaxy) error {
 		galaxy.Name, galaxy.Type, galaxy.Description,
 		diameterLy, massSuns, distanceFromEarthLy, discoveredYear,
 		id,
-	).Scan(&galaxy.CreatedAt) // Используем CreatedAt для updated_at
+	).Scan(&galaxy.CreatedAt)
 
 	return err
 }

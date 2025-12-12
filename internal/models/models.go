@@ -59,18 +59,18 @@ type PageData struct {
 	CurrentPage string
 	PlanetCount int
 	GalaxyCount int
-	UserCount   int // ДОБАВЬТЕ
+	UserCount   int
 	Planets     []Planet
 	Planet      *Planet
 	Galaxies    []Galaxy
 	Galaxy      *Galaxy
-	Users       []User // ДОБАВЬТЕ
-	User        *User  // ДОБАВЬТЕ
+	Users       []User
+	User        *User
 	IsAdmin     bool
 	Username    string
 	Role        string
-	AppPort     string // ДОБАВЬТЕ
-	Environment string // ДОБАВЬТЕ
-	Error       string // ДОБАВЬТЕ для ошибок форм
-	Success     string // ДОБАВЬТЕ для успешных сообщений
+	AppPort     string
+	Environment string
+	Error       string // для ошибок форм
+	Success     string // для успешных сообщений
 }

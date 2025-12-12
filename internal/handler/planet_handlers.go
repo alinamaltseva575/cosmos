@@ -33,7 +33,7 @@ func (h *Handler) AdminPlanetsHandler(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := h.DB.Query(query)
 	if err != nil {
-		log.Printf("❌ Ошибка SQL запроса планет (админка): %v", err)
+		log.Printf("Ошибка SQL запроса планет (админка): %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
@@ -44,7 +44,7 @@ func (h *Handler) AdminPlanetsHandler(w http.ResponseWriter, r *http.Request) {
 		var p models.Planet
 		err := rows.Scan(&p.ID, &p.Name, &p.Type, &p.DiameterKm, &p.HasLife, &p.GalaxyName)
 		if err != nil {
-			log.Printf("❌ Ошибка сканирования планеты (админка): %v", err)
+			log.Printf("Ошибка сканирования планеты (админка): %v", err)
 			continue
 		}
 		planets = append(planets, p)
@@ -55,7 +55,7 @@ func (h *Handler) AdminPlanetsHandler(w http.ResponseWriter, r *http.Request) {
 	h.DB.QueryRow("SELECT COUNT(*) FROM planets").Scan(&planetCount)
 
 	// Получаем сообщение об успехе из URL параметра
-	success := r.URL.Query().Get("success") // ВОТ ТАК ДОБАВИТЬ
+	success := r.URL.Query().Get("success")
 
 	data := models.PageData{
 		Title:       "Управление планетами",
@@ -63,12 +63,12 @@ func (h *Handler) AdminPlanetsHandler(w http.ResponseWriter, r *http.Request) {
 		Planets:     planets,
 		PlanetCount: planetCount,
 		IsAdmin:     true,
-		Success:     success, // ВОТ ТАК ДОБАВИТЬ
+		Success:     success,
 	}
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_planets: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_planets: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -86,7 +86,7 @@ func (h *Handler) AdminNewPlanetHandler(w http.ResponseWriter, r *http.Request) 
 	// Получаем список галактик для выпадающего списка
 	galaxies, err := h.getGalaxies()
 	if err != nil {
-		log.Printf("❌ Ошибка получения галактик: %v", err)
+		log.Printf("Ошибка получения галактик: %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
@@ -130,7 +130,7 @@ func (h *Handler) AdminNewPlanetHandler(w http.ResponseWriter, r *http.Request) 
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_planet_form: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_planet_form: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -177,7 +177,7 @@ func (h *Handler) AdminDeletePlanetHandler(w http.ResponseWriter, r *http.Reques
 	// Удаляем планету
 	result, err := h.DB.Exec("DELETE FROM planets WHERE id = $1", id)
 	if err != nil {
-		log.Printf("❌ Ошибка удаления планеты %d: %v", id, err)
+		log.Printf("Ошибка удаления планеты %d: %v", id, err)
 
 		if strings.Contains(err.Error(), "foreign key constraint") {
 			http.Error(w, "Нельзя удалить планету, так как она связана с другими данными", http.StatusBadRequest)
@@ -193,15 +193,15 @@ func (h *Handler) AdminDeletePlanetHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	log.Printf("✅ Планета удалена: %s (ID %d)", planetName, id)
+	log.Printf("Планета удалена: %s (ID %d)", planetName, id)
 
 	// Редирект с сообщением об успехе
 	http.Redirect(w, r, "/admin/planets?success=Планета+"+planetName+"+удалена", http.StatusFound)
 }
 
-// НОВАЯ функция для страницы подтверждения
+// Функция для страницы подтверждения
 func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Request, id int) {
-	log.Printf("🔍 showDeletePlanetConfirmation вызван для ID: %d", id)
+	log.Printf("showDeletePlanetConfirmation вызван для ID: %d", id)
 
 	h.setEncoding(w)
 
@@ -217,7 +217,7 @@ func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Re
     `, id).Scan(&planet.ID, &planet.Name, &planet.Type, &planet.DiameterKm, &galaxyName)
 
 	if err != nil {
-		log.Printf("❌ Ошибка получения планеты для удаления: %v", err)
+		log.Printf("Ошибка получения планеты для удаления: %v", err)
 		if err == sql.ErrNoRows {
 			http.NotFound(w, r)
 		} else {
@@ -257,12 +257,12 @@ func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Re
 		PlanetCount: 0,
 	}
 
-	log.Printf("📊 Данные для шаблона: ObjectType=%s, ObjectName=%s", data.ObjectType, data.ObjectName)
+	log.Printf("Данные для шаблона: ObjectType=%s, ObjectName=%s", data.ObjectType, data.ObjectName)
 
 	// Пробуем выполнить шаблон
 	err = h.Tmpl.ExecuteTemplate(w, "admin_confirm_delete", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_confirm_delete: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_confirm_delete: %v", err)
 
 		// Покажем простую страницу ошибки
 		fmt.Fprintf(w, `
@@ -277,7 +277,7 @@ func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Re
 	}
 }
 
-// ========== Вспомогательные методы ==========
+//Вспомогательные методы
 
 func (h *Handler) getGalaxies() ([]models.Galaxy, error) {
 	rows, err := h.DB.Query("SELECT id, name FROM galaxies ORDER BY name")
@@ -307,7 +307,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 	planet.Type = r.FormValue("type")
 	planet.Description = r.FormValue("description")
 
-	log.Printf("📝 Парсим форму: name=%s, type=%s", planet.Name, planet.Type)
+	log.Printf("Парсим форму: name=%s, type=%s", planet.Name, planet.Type)
 
 	// Проверяем обязательные поля
 	if planet.Name == "" {
@@ -325,7 +325,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 		if val, err := strconv.ParseFloat(diameter, 64); err == nil {
 			planet.DiameterKm = val
 		} else {
-			log.Printf("⚠️ Ошибка парсинга diameter_km: %v", err)
+			log.Printf("Ошибка парсинга diameter_km: %v", err)
 		}
 	}
 
@@ -333,7 +333,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 		if val, err := strconv.ParseFloat(mass, 64); err == nil {
 			planet.MassKg = val
 		} else {
-			log.Printf("⚠️ Ошибка парсинга mass_kg: %v", err)
+			log.Printf("Ошибка парсинга mass_kg: %v", err)
 		}
 	}
 
@@ -341,7 +341,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 		if val, err := strconv.ParseFloat(period, 64); err == nil {
 			planet.OrbitalPeriodDays = val
 		} else {
-			log.Printf("⚠️ Ошибка парсинга orbital_period_days: %v", err)
+			log.Printf("Ошибка парсинга orbital_period_days: %v", err)
 		}
 	}
 
@@ -349,7 +349,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 		if val, err := strconv.Atoi(year); err == nil {
 			planet.DiscoveredYear = &val
 		} else {
-			log.Printf("⚠️ Ошибка парсинга discovered_year: %v", err)
+			log.Printf("Ошибка парсинга discovered_year: %v", err)
 		}
 	}
 
@@ -358,7 +358,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 		if val, err := strconv.Atoi(galaxyID); err == nil {
 			planet.GalaxyID = &val
 		} else {
-			log.Printf("⚠️ Ошибка парсинга galaxy_id: %v", err)
+			log.Printf("Ошибка парсинга galaxy_id: %v", err)
 		}
 	}
 
@@ -366,7 +366,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 	planet.HasLife = r.FormValue("has_life") == "on" || r.FormValue("has_life") == "true"
 	planet.IsHabitable = r.FormValue("is_habitable") == "on" || r.FormValue("is_habitable") == "true"
 
-	log.Printf("📊 Результат парсинга: %+v", planet)
+	log.Printf("Результат парсинга: %+v", planet)
 
 	return planet, nil
 }
@@ -465,7 +465,7 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 	// Получаем список галактик для выпадающего списка
 	galaxies, err := h.getGalaxies()
 	if err != nil {
-		log.Printf("❌ Ошибка получения галактик: %v", err)
+		log.Printf("Ошибка получения галактик: %v", err)
 		http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		return
 	}
@@ -503,7 +503,7 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 		if err == sql.ErrNoRows {
 			http.NotFound(w, r)
 		} else {
-			log.Printf("❌ Ошибка получения планеты: %v", err)
+			log.Printf("Ошибка получения планеты: %v", err)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		}
 		return
@@ -555,14 +555,14 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 				data.Planet = updatedPlanet
 				data.Planet.ID = planet.ID
 				data.Planet.CreatedAt = planet.CreatedAt
-				log.Printf("✅ Планета обновлена: ID %d", id)
+				log.Printf("Планета обновлена: ID %d", id)
 			}
 		}
 	}
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_planet_form (edit): %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_planet_form (edit): %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
