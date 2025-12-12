@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -200,6 +201,8 @@ func (h *Handler) AdminDeletePlanetHandler(w http.ResponseWriter, r *http.Reques
 
 // НОВАЯ функция для страницы подтверждения
 func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Request, id int) {
+	log.Printf("🔍 showDeletePlanetConfirmation вызван для ID: %d", id)
+
 	h.setEncoding(w)
 
 	// Получаем планету из БД
@@ -214,10 +217,10 @@ func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Re
     `, id).Scan(&planet.ID, &planet.Name, &planet.Type, &planet.DiameterKm, &galaxyName)
 
 	if err != nil {
+		log.Printf("❌ Ошибка получения планеты для удаления: %v", err)
 		if err == sql.ErrNoRows {
 			http.NotFound(w, r)
 		} else {
-			log.Printf("❌ Ошибка получения планеты для удаления: %v", err)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		}
 		return
@@ -230,11 +233,13 @@ func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Re
 	// Структура для данных страницы подтверждения
 	type DeleteData struct {
 		models.PageData
-		ObjectType string
-		ObjectName string
-		ObjectData interface{}
-		DeleteURL  string
-		ReturnURL  string
+		ObjectType  string
+		ObjectName  string
+		ObjectData  interface{}
+		DeleteURL   string
+		ReturnURL   string
+		HasPlanets  bool
+		PlanetCount int
 	}
 
 	data := DeleteData{
@@ -243,17 +248,32 @@ func (h *Handler) showDeletePlanetConfirmation(w http.ResponseWriter, r *http.Re
 			CurrentPage: "admin_confirm_delete",
 			IsAdmin:     true,
 		},
-		ObjectType: "Планета",
-		ObjectName: planet.Name,
-		ObjectData: planet,
-		DeleteURL:  "/admin/planets/" + strconv.Itoa(id) + "/delete",
-		ReturnURL:  "/admin/planets",
+		ObjectType:  "Планета",
+		ObjectName:  planet.Name,
+		ObjectData:  planet,
+		DeleteURL:   "/admin/planets/delete/" + strconv.Itoa(id),
+		ReturnURL:   "/admin/planets",
+		HasPlanets:  false, // Для планет это не применяется
+		PlanetCount: 0,
 	}
 
-	err = h.Tmpl.ExecuteTemplate(w, "admin_confirm_delete.html", data)
+	log.Printf("📊 Данные для шаблона: ObjectType=%s, ObjectName=%s", data.ObjectType, data.ObjectName)
+
+	// Пробуем выполнить шаблон
+	err = h.Tmpl.ExecuteTemplate(w, "admin_confirm_delete", data)
 	if err != nil {
 		log.Printf("❌ Ошибка выполнения шаблона admin_confirm_delete: %v", err)
-		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
+
+		// Покажем простую страницу ошибки
+		fmt.Fprintf(w, `
+            <html><body style="background:#0a0a2a;color:white;padding:50px;">
+            <h1>Ошибка загрузки шаблона</h1>
+            <p>%v</p>
+            <p>ObjectType: %s</p>
+            <p>ObjectName: %s</p>
+            <a href="/admin/planets">Назад</a>
+            </body></html>
+        `, err, data.ObjectType, data.ObjectName)
 	}
 }
 

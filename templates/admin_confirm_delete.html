@@ -1,99 +1,126 @@
 {{define "admin_confirm_delete"}}
-<!doctype html>
-<html>
-    <head>
-        <title>Подтверждение удаления</title>
-        <style>
-            body {
-                font-family: Arial;
-                padding: 20px;
-            }
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-            }
-            .warning {
-                background: #ffe6e6;
-                border: 2px solid #ff0000;
-                padding: 20px;
-                border-radius: 5px;
-                margin-bottom: 20px;
-            }
-            .info {
-                background: #f0f0f0;
-                padding: 15px;
-                border-radius: 5px;
-                margin-bottom: 20px;
-            }
-            .actions {
-                margin-top: 20px;
-            }
-            .btn {
-                padding: 10px 20px;
-                margin-right: 10px;
-                text-decoration: none;
-                border-radius: 4px;
-                display: inline-block;
-            }
-            .btn-danger {
-                background: #ff0000;
-                color: white;
-            }
-            .btn-secondary {
-                background: #666;
-                color: white;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🗑️ Подтверждение удаления</h1>
+<div class="admin-header">
+    <h1>🗑️ Подтверждение удаления</h1>
+    <p>Вы уверены, что хотите удалить этот объект?</p>
+</div>
 
-            <div class="warning">
-                <h3>⚠️ Внимание!</h3>
-                <p>
-                    Это действие <strong>нельзя отменить</strong>. Объект будет
-                    удален безвозвратно.
-                </p>
-            </div>
+<div class="admin-actions-bar">
+    <a href="{{.ReturnURL}}" class="btn btn-secondary">← Отмена</a>
+</div>
 
-            <div class="info">
-                <h3>Информация об объекте:</h3>
-                <p><strong>Тип:</strong> {{.ObjectType}}</p>
-                <p><strong>Название:</strong> {{.ObjectName}}</p>
-                {{if eq .ObjectType "Планета"}}
-                <p><strong>ID:</strong> {{.ObjectData.ID}}</p>
-                <p><strong>Тип:</strong> {{.ObjectData.Type}}</p>
-                {{else if eq .ObjectType "Галактика"}}
-                <p><strong>ID:</strong> {{.ObjectData.ID}}</p>
-                <p><strong>Тип:</strong> {{.ObjectData.Type}}</p>
-                {{else if eq .ObjectType "Пользователь"}}
-                <p><strong>ID:</strong> {{.ObjectData.ID}}</p>
-                <p><strong>Email:</strong> {{.ObjectData.Email}}</p>
-                {{end}}
-            </div>
+{{if .HasPlanets}}
+<div class="error-message">
+    <h3>⚠️ Невозможно удалить!</h3>
+    <p>В этой галактике есть <strong>{{.PlanetCount}} планет(а/ы)</strong>.</p>
+    <p>Сначала удалите или переместите все планеты из этой галактики.</p>
+    <div class="form-actions">
+        <a href="{{.ReturnURL}}" class="btn btn-secondary"
+            >Вернуться к списку</a
+        >
+    </div>
+</div>
+{{else}}
+<div class="delete-confirmation">
+    <div class="warning-box">
+        <h3>⚠️ Внимание!</h3>
+        <p>
+            Это действие <strong>нельзя отменить</strong>. Объект будет удален
+            безвозвратно.
+        </p>
+    </div>
 
-            <div class="actions">
-                <form
-                    method="POST"
-                    action="{{.DeleteURL}}"
-                    style="display: inline"
-                >
-                    <button type="submit" class="btn btn-danger">
-                        🗑️ Да, удалить
-                    </button>
-                </form>
-                <a href="{{.ReturnURL}}" class="btn btn-secondary">❌ Отмена</a>
-            </div>
+    <div class="object-info">
+        <h3>Информация об объекте:</h3>
+        <div class="info-card">
+            <h4>{{.ObjectType}}: {{.ObjectName}}</h4>
 
-            <div style="margin-top: 30px; color: #666; font-size: 0.9em">
-                <p>Debug info:</p>
-                <p>DeleteURL: {{.DeleteURL}}</p>
-                <p>ReturnURL: {{.ReturnURL}}</p>
-                <p>ObjectType: {{.ObjectType}}</p>
-                <p>ObjectName: {{.ObjectName}}</p>
-            </div>
+            {{if eq .ObjectType "Планета"}}
+            <p><strong>Тип:</strong> {{.ObjectData.Type}}</p>
+            <p><strong>Диаметр:</strong> {{.ObjectData.DiameterKm}} км</p>
+            {{if .ObjectData.GalaxyName}}
+            <p><strong>Галактика:</strong> {{.ObjectData.GalaxyName}}</p>
+            {{end}} {{else if eq .ObjectType "Галактика"}}
+            <p><strong>Тип:</strong> {{.ObjectData.Type}}</p>
+            {{if .ObjectData.DiameterLy}}
+            <p><strong>Диаметр:</strong> {{.ObjectData.DiameterLy}} св. лет</p>
+            {{end}} {{else if eq .ObjectType "Пользователь"}}
+            <p><strong>Email:</strong> {{.ObjectData.Email}}</p>
+            <p><strong>Роль:</strong> {{.ObjectData.Role}}</p>
+            <p>
+                <strong>Создан:</strong> {{.ObjectData.CreatedAt.Format
+                "02.01.2006 15:04"}}
+            </p>
+            {{end}}
         </div>
-    </body>
-</html>
+    </div>
+
+    <div class="form-actions">
+        <form method="POST" action="{{.DeleteURL}}" style="display: inline">
+            <button type="submit" class="btn btn-danger btn-large">
+                🗑️ Да, удалить
+            </button>
+        </form>
+        <a href="{{.ReturnURL}}" class="btn btn-secondary">❌ Отмена</a>
+    </div>
+</div>
+{{end}}
+
+<style>
+    .delete-confirmation {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .warning-box {
+        background: linear-gradient(
+            135deg,
+            rgba(244, 67, 54, 0.1),
+            rgba(229, 57, 53, 0.2)
+        );
+        border: 2px solid #f44336;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .warning-box h3 {
+        color: #f44336;
+        margin-bottom: 10px;
+    }
+
+    .warning-box p {
+        color: #ff8a80;
+    }
+
+    .object-info {
+        margin-bottom: 30px;
+    }
+
+    .info-card {
+        background-color: #1a1a2e;
+        border: 1px solid #2a2a3e;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 10px;
+    }
+
+    .info-card h4 {
+        color: #4cc9f0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #2a2a3e;
+    }
+
+    .info-card p {
+        margin: 8px 0;
+        color: #ddd;
+    }
+
+    .btn-large {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+    }
+</style>
 {{end}}

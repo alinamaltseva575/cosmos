@@ -17,7 +17,6 @@ type Handler struct {
 }
 
 // NewHandler создает новый экземпляр Handler
-// NewHandler создает новый экземпляр Handler
 func NewHandler(db *sql.DB) *Handler {
 	// Создаем карту функций для шаблонов
 	funcMap := template.FuncMap{
@@ -93,33 +92,22 @@ func NewHandler(db *sql.DB) *Handler {
 		},
 	}
 
-	// Парсим шаблоны из templates/
+	// Парсим шаблоны
 	tmpl := template.New("").Funcs(funcMap)
 
+	// Парсим ВСЕ HTML файлы
 	tmpl, err := tmpl.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Printf("❌ Ошибка парсинга шаблонов: %v", err)
-		// Создаем минимальный шаблон чтобы не падать
-		tmpl = template.Must(template.New("base").Parse(`
-            <!DOCTYPE html>
-            <html>
-            <head><title>{{.Title}}</title></head>
-            <body>
-                <h1>Ошибка загрузки шаблонов</h1>
-                <p>Проверьте файлы шаблонов</p>
-            </body>
-            </html>`))
 	}
 
 	// Проверяем, какие шаблоны загрузились
-	templateNames := []string{}
+	log.Printf("📋 Загруженные шаблоны:")
 	for _, t := range tmpl.Templates() {
-		if t.Name() != "" && t.Name() != "base" {
-			templateNames = append(templateNames, t.Name())
+		if t.Name() != "" {
+			log.Printf("  - %s", t.Name())
 		}
 	}
-
-	log.Printf("✅ Шаблоны загружены: %v", templateNames)
 
 	return &Handler{
 		DB:   db,

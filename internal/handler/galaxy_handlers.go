@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -311,24 +312,33 @@ func (h *Handler) AdminDeleteGalaxyHandler(w http.ResponseWriter, r *http.Reques
 
 // Добавить вспомогательную функцию
 func (h *Handler) showDeleteGalaxyConfirmation(w http.ResponseWriter, r *http.Request, id int) {
+	log.Printf("🔍 showDeleteGalaxyConfirmation вызван для ID: %d", id)
+
 	h.setEncoding(w)
 
 	// Получаем галактику из БД
 	var galaxy models.Galaxy
+	var diameterLy sql.NullFloat64
+
 	err := h.DB.QueryRow(`
         SELECT id, name, type, diameter_ly, description
         FROM galaxies
         WHERE id = $1
-    `, id).Scan(&galaxy.ID, &galaxy.Name, &galaxy.Type, &galaxy.DiameterLy, &galaxy.Description)
+    `, id).Scan(&galaxy.ID, &galaxy.Name, &galaxy.Type, &diameterLy, &galaxy.Description)
 
 	if err != nil {
+		log.Printf("❌ Ошибка получения галактики для удаления: %v", err)
 		if err == sql.ErrNoRows {
 			http.NotFound(w, r)
 		} else {
-			log.Printf("❌ Ошибка получения галактики для удаления: %v", err)
 			http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 		}
 		return
+	}
+
+	if diameterLy.Valid {
+		val := diameterLy.Float64
+		galaxy.DiameterLy = &val
 	}
 
 	// Проверяем, есть ли планеты в этой галактике
@@ -356,16 +366,31 @@ func (h *Handler) showDeleteGalaxyConfirmation(w http.ResponseWriter, r *http.Re
 		ObjectType:  "Галактика",
 		ObjectName:  galaxy.Name,
 		ObjectData:  galaxy,
-		DeleteURL:   "/admin/galaxies/" + strconv.Itoa(id) + "/delete",
+		DeleteURL:   "/admin/galaxies/delete/" + strconv.Itoa(id),
 		ReturnURL:   "/admin/galaxies",
 		HasPlanets:  planetCount > 0,
 		PlanetCount: planetCount,
 	}
 
-	err = h.Tmpl.ExecuteTemplate(w, "admin_confirm_delete.html", data)
+	log.Printf("📊 Данные для шаблона галактики: ObjectType=%s, ObjectName=%s, HasPlanets=%v",
+		data.ObjectType, data.ObjectName, data.HasPlanets)
+
+	// Пробуем выполнить шаблон
+	err = h.Tmpl.ExecuteTemplate(w, "admin_confirm_delete", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_confirm_delete: %v", err)
-		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
+		log.Printf("❌ Ошибка выполнения шаблона admin_confirm_delete для галактики: %v", err)
+
+		// Покажем простую страницу ошибки
+		fmt.Fprintf(w, `
+            <html><body style="background:#0a0a2a;color:white;padding:50px;">
+            <h1>Ошибка загрузки шаблона</h1>
+            <p>%v</p>
+            <p>ObjectType: %s</p>
+            <p>ObjectName: %s</p>
+            <p>HasPlanets: %v</p>
+            <a href="/admin/galaxies">Назад к галактикам</a>
+            </body></html>
+        `, err, data.ObjectType, data.ObjectName, data.HasPlanets)
 	}
 }
 
