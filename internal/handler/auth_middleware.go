@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	"log"
-	"net/http" // ДОБАВЬТЕ ЭТОТ ИМПОРТ
+	"net/http"
 
 	"cosmos/internal/auth"
 )

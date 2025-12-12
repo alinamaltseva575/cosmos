@@ -50,14 +50,14 @@ func main() {
 	// Планеты
 	http.HandleFunc("/admin/planets", h.AdminPlanetsHandler)
 	http.HandleFunc("/admin/planets/new", h.AdminNewPlanetHandler)
-	http.HandleFunc("/admin/planets/delete/", h.AdminDeletePlanetHandler) // ПРОСТОЙ путь
-	http.HandleFunc("/admin/planets/edit/", h.AdminEditPlanetHandler)     // ПРОСТОЙ путь
+	http.HandleFunc("/admin/planets/delete/", h.AdminDeletePlanetHandler)
+	http.HandleFunc("/admin/planets/edit/", h.AdminEditPlanetHandler)
 
 	// Галактики
 	http.HandleFunc("/admin/galaxies", h.AdminGalaxiesHandler)
 	http.HandleFunc("/admin/galaxies/new", h.AdminNewGalaxyHandler)
-	http.HandleFunc("/admin/galaxies/delete/", h.AdminDeleteGalaxyHandler) // ПРОСТОЙ путь
-	http.HandleFunc("/admin/galaxies/edit/", h.AdminEditGalaxyHandler)     // ПРОСТОЙ путь
+	http.HandleFunc("/admin/galaxies/delete/", h.AdminDeleteGalaxyHandler)
+	http.HandleFunc("/admin/galaxies/edit/", h.AdminEditGalaxyHandler)
 
 	// Пользователи
 	http.HandleFunc("/admin/users", h.AdminUsersHandler)
