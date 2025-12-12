@@ -287,6 +287,8 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 	planet.Type = r.FormValue("type")
 	planet.Description = r.FormValue("description")
 
+	log.Printf("📝 Парсим форму: name=%s, type=%s", planet.Name, planet.Type)
+
 	// Проверяем обязательные поля
 	if planet.Name == "" {
 		return planet, errors.New("название планеты обязательно")
@@ -302,24 +304,32 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 	if diameter := r.FormValue("diameter_km"); diameter != "" {
 		if val, err := strconv.ParseFloat(diameter, 64); err == nil {
 			planet.DiameterKm = val
+		} else {
+			log.Printf("⚠️ Ошибка парсинга diameter_km: %v", err)
 		}
 	}
 
 	if mass := r.FormValue("mass_kg"); mass != "" {
 		if val, err := strconv.ParseFloat(mass, 64); err == nil {
 			planet.MassKg = val
+		} else {
+			log.Printf("⚠️ Ошибка парсинга mass_kg: %v", err)
 		}
 	}
 
 	if period := r.FormValue("orbital_period_days"); period != "" {
 		if val, err := strconv.ParseFloat(period, 64); err == nil {
 			planet.OrbitalPeriodDays = val
+		} else {
+			log.Printf("⚠️ Ошибка парсинга orbital_period_days: %v", err)
 		}
 	}
 
 	if year := r.FormValue("discovered_year"); year != "" {
 		if val, err := strconv.Atoi(year); err == nil {
 			planet.DiscoveredYear = &val
+		} else {
+			log.Printf("⚠️ Ошибка парсинга discovered_year: %v", err)
 		}
 	}
 
@@ -327,12 +337,16 @@ func (h *Handler) parsePlanetForm(r *http.Request) (models.Planet, error) {
 	if galaxyID := r.FormValue("galaxy_id"); galaxyID != "" {
 		if val, err := strconv.Atoi(galaxyID); err == nil {
 			planet.GalaxyID = &val
+		} else {
+			log.Printf("⚠️ Ошибка парсинга galaxy_id: %v", err)
 		}
 	}
 
 	// Checkboxes
-	planet.HasLife = r.FormValue("has_life") == "true"
-	planet.IsHabitable = r.FormValue("is_habitable") == "true"
+	planet.HasLife = r.FormValue("has_life") == "on" || r.FormValue("has_life") == "true"
+	planet.IsHabitable = r.FormValue("is_habitable") == "on" || r.FormValue("is_habitable") == "true"
+
+	log.Printf("📊 Результат парсинга: %+v", planet)
 
 	return planet, nil
 }

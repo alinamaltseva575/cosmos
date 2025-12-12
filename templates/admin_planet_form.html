@@ -44,10 +44,9 @@
             <select id="galaxy_id" name="galaxy_id">
                 <option value="">Не указана</option>
                 {{range .Galaxies}}
+                <!-- ИСПРАВЛЯЕМ ЗДЕСЬ -->
                 <option value="{{.ID}}"
-                    {{if $.Planet.GalaxyID}}
-                        {{if eq .ID $.Planet.GalaxyID}}selected{{end}}
-                    {{end}}>
+                    {{if and $.Planet.GalaxyID (eq .ID (derefInt $.Planet.GalaxyID))}}selected{{end}}>
                     {{.Name}}
                 </option>
                 {{end}}
@@ -80,7 +79,7 @@
         <div class="form-group">
             <label for="discovered_year">Год открытия</label>
             <input type="number" id="discovered_year" name="discovered_year"
-                   value="{{if .Planet.DiscoveredYear}}{{.Planet.DiscoveredYear}}{{end}}" placeholder="2023">
+                   value="{{if .Planet.DiscoveredYear}}{{derefInt .Planet.DiscoveredYear}}{{end}}" placeholder="2023">
         </div>
     </div>
 
@@ -101,7 +100,7 @@
     <div class="form-group">
         <label for="description">Описание *</label>
         <textarea id="description" name="description" rows="6" required
-                  placeholder="Подробное описание планеты: история открытия, характеристики, интересные факты...">{{.Planet.Description}}</textarea>
+                  placeholder="Подробное описание планеты...">{{.Planet.Description}}</textarea>
     </div>
 
     <div class="form-actions">
@@ -115,4 +114,17 @@
         {{end}}
     </div>
 </form>
+
+{{if .Planet.ID}}
+<div class="admin-info">
+    <h3>Информация о планете</h3>
+    <ul>
+        <li>ID: {{.Planet.ID}}</li>
+        <li>Создана: {{.Planet.CreatedAt.Format "02.01.2006 15:04"}}</li>
+        {{if .Planet.GalaxyID}}
+        <li>ID галактики: {{derefInt .Planet.GalaxyID}}</li>
+        {{end}}
+    </ul>
+</div>
+{{end}}
 {{end}}

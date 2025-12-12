@@ -17,7 +17,9 @@ type Handler struct {
 }
 
 // NewHandler создает новый экземпляр Handler
+// NewHandler создает новый экземпляр Handler
 func NewHandler(db *sql.DB) *Handler {
+	// Создаем карту функций для шаблонов
 	funcMap := template.FuncMap{
 		"formatNumber": func(num float64) string {
 			if num == 0 {
@@ -46,25 +48,67 @@ func NewHandler(db *sql.DB) *Handler {
 			}
 			return fmt.Sprintf("%.0f кг", mass)
 		},
+		// ДОБАВЛЯЕМ НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С УКАЗАТЕЛЯМИ
+		"derefInt": func(p interface{}) int {
+			if p == nil {
+				return 0
+			}
+			switch v := p.(type) {
+			case *int:
+				if v != nil {
+					return *v
+				}
+			case int:
+				return v
+			}
+			return 0
+		},
+		"derefFloat": func(p interface{}) float64 {
+			if p == nil {
+				return 0
+			}
+			switch v := p.(type) {
+			case *float64:
+				if v != nil {
+					return *v
+				}
+			case float64:
+				return v
+			}
+			return 0
+		},
+		"hasValue": func(p interface{}) bool {
+			if p == nil {
+				return false
+			}
+			switch v := p.(type) {
+			case *int:
+				return v != nil && *v != 0
+			case *float64:
+				return v != nil && *v != 0
+			case *string:
+				return v != nil && *v != ""
+			}
+			return false
+		},
 	}
 
-	// Парсим шаблоны из templates/ и templates/admin/
+	// Парсим шаблоны из templates/
 	tmpl := template.New("").Funcs(funcMap)
 
-	// Парсим все HTML файлы в папке templates
 	tmpl, err := tmpl.ParseGlob("templates/*.html")
 	if err != nil {
 		log.Printf("❌ Ошибка парсинга шаблонов: %v", err)
 		// Создаем минимальный шаблон чтобы не падать
 		tmpl = template.Must(template.New("base").Parse(`
-			<!DOCTYPE html>
-			<html>
-			<head><title>{{.Title}}</title></head>
-			<body>
-				<h1>Ошибка загрузки шаблонов</h1>
-				<p>Проверьте файлы шаблонов</p>
-			</body>
-			</html>`))
+            <!DOCTYPE html>
+            <html>
+            <head><title>{{.Title}}</title></head>
+            <body>
+                <h1>Ошибка загрузки шаблонов</h1>
+                <p>Проверьте файлы шаблонов</p>
+            </body>
+            </html>`))
 	}
 
 	// Проверяем, какие шаблоны загрузились
