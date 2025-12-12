@@ -1,0 +1,110 @@
+{{define "admin_galaxy_edit"}}
+<div class="admin-header">
+    <h1>✏️ Редактирование галактики: {{.Galaxy.Name}}</h1>
+    <p>Измените данные галактики</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="/admin/galaxies" class="btn btn-secondary">← Назад к списку галактик</a>
+    <a href="/galaxies/{{.Galaxy.ID}}" class="btn" target="_blank">👁️ Просмотреть публично</a>
+</div>
+
+{{if .Error}}
+<div class="error-message">
+    <strong>Ошибка:</strong> {{.Error}}
+</div>
+{{end}}
+
+{{if .Success}}
+<div class="success-message">
+    {{.Success}}
+</div>
+{{end}}
+
+<form method="POST" action="/admin/galaxies/{{.Galaxy.ID}}/edit" class="admin-form">
+
+    <div class="form-group">
+        <label for="name">Название галактики *</label>
+        <input type="text" id="name" name="name" required
+               value="{{.Galaxy.Name}}" placeholder="Например: Млечный Путь">
+    </div>
+
+    <div class="form-group">
+        <label for="type">Тип галактики *</label>
+        <select id="type" name="type" required>
+            <option value="">Выберите тип</option>
+            <option value="спиральная" {{if eq .Galaxy.Type "спиральная"}}selected{{end}}>Спиральная</option>
+            <option value="эллиптическая" {{if eq .Galaxy.Type "эллиптическая"}}selected{{end}}>Эллиптическая</option>
+            <option value="неправильная" {{if eq .Galaxy.Type "неправильная"}}selected{{end}}>Неправильная</option>
+            <option value="линзовидная" {{if eq .Galaxy.Type "линзовидная"}}selected{{end}}>Линзовидная</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="diameter_ly">Диаметр (световых лет)</label>
+            <input type="number" id="diameter_ly" name="diameter_ly" step="0.01"
+                   value="{{if .Galaxy.DiameterLy}}{{.Galaxy.DiameterLy}}{{end}}" placeholder="100000">
+        </div>
+
+        <div class="form-group">
+            <label for="mass_suns">Масса (в массах Солнца)</label>
+            <input type="number" id="mass_suns" name="mass_suns" step="0.01"
+                   value="{{if .Galaxy.MassSuns}}{{.Galaxy.MassSuns}}{{end}}" placeholder="1500000000000">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="distance_from_earth_ly">Расстояние от Земли (световых лет)</label>
+            <input type="number" id="distance_from_earth_ly" name="distance_from_earth_ly" step="0.01"
+                   value="{{if .Galaxy.DistanceFromEarthLy}}{{.Galaxy.DistanceFromEarthLy}}{{end}}" placeholder="0">
+        </div>
+
+        <div class="form-group">
+            <label for="discovered_year">Год открытия</label>
+            <input type="number" id="discovered_year" name="discovered_year"
+                   value="{{if .Galaxy.DiscoveredYear}}{{.Galaxy.DiscoveredYear}}{{end}}" placeholder="964">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Описание *</label>
+        <textarea id="description" name="description" rows="5" required
+                  placeholder="Подробное описание галактики...">{{.Galaxy.Description}}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            💾 Сохранить изменения
+        </button>
+        <a href="/admin/galaxies" class="btn btn-secondary">Отмена</a>
+        <a href="/admin/galaxies/{{.Galaxy.ID}}/delete"
+           class="btn btn-danger"
+           onclick="return confirm('Удалить галактику {{.Galaxy.Name}}?')">
+            🗑️ Удалить галактику
+        </a>
+    </div>
+</form>
+
+<div class="admin-info">
+    <h3>Информация о галактике</h3>
+    <ul>
+        <li>ID: {{.Galaxy.ID}}</li>
+        <li>Создана: {{.Galaxy.CreatedAt.Format "02.01.2006 15:04"}}</li>
+        <li>Планет в галактике: {{.PlanetCount}}</li>
+    </ul>
+
+    {{if .PlanetCount}}
+    <h4>Планеты в этой галактике:</h4>
+    <ul>
+        {{range .Planets}}
+        <li>
+            <a href="/admin/planets/{{.ID}}/edit">{{.Name}}</a>
+            ({{.Type}})
+        </li>
+        {{end}}
+    </ul>
+    {{end}}
+</div>
+{{end}}

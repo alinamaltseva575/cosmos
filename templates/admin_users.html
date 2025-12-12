@@ -1,0 +1,65 @@
+{{define "admin_users"}}  <!-- ИЗМЕНИТЬ НАЗВАНИЕ ШАБЛОНА -->
+<div class="admin-header">
+    <h1>👥 Управление пользователями</h1>
+    <p>Создание, редактирование и удаление пользователей</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="/admin" class="btn btn-secondary">← Назад в админку</a>
+    <a href="/admin/users/new" class="btn btn-success">+ Добавить пользователя</a>
+</div>
+
+{{if .Users}}
+<div class="admin-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Логин</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Дата регистрации</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Users}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Username}}</td>
+                <td>{{.Email}}</td>
+                <td>
+                    <span class="badge {{if eq .Role "admin"}}admin-badge{{else}}user-badge{{end}}">
+                        {{if eq .Role "admin"}}👑 Админ{{else}}👤 Пользователь{{end}}
+                    </span>
+                </td>
+                <td>{{.CreatedAt.Format "02.01.2006"}}</td>
+                <td class="actions">
+                    <a href="/admin/users/edit/{{.ID}}" class="btn-small btn-edit">✏️</a>
+                    <a href="/admin/users/view/{{.ID}}" class="btn-small btn-view">👁️</a>
+
+                    {{if ne .ID 1}}
+                    <a href="/admin/users/delete/{{.ID}}" class="btn-small btn-delete">🗑️</a>
+                    {{else}}
+                    <span class="form-text" style="color: #ff9800; font-size: 0.8rem; margin-left: 5px;">
+                        ⚠️ Главный
+                    </span>
+                    {{end}}
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="empty-state">
+    <p>Пользователи не найдены</p>
+    <a href="/admin/users/new" class="btn btn-success">Добавить первого пользователя</a>
+</div>
+{{end}}
+
+<div class="admin-info">
+    <h3>Всего пользователей: {{len .Users}}</h3>
+    <a href="/admin" class="btn">← Назад в админку</a>
+</div>
+{{end}}

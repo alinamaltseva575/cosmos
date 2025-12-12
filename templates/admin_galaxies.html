@@ -1,7 +1,7 @@
-{{define "admin_planets"}}
+{{define "admin_galaxies"}}
 <div class="admin-header">
-    <h1>🌍 Управление планетами</h1>
-    <p>Добавление, редактирование и удаление планет</p>
+    <h1>🌌 Управление галактиками</h1>
+    <p>Добавление, редактирование и удаление галактик</p>
 </div>
 
 {{if .Success}}
@@ -10,10 +10,12 @@
 
 <div class="admin-actions-bar">
     <a href="/admin" class="btn btn-secondary">← Назад в админку</a>
-    <a href="/admin/planets/new" class="btn btn-success">+ Добавить планету</a>
+    <a href="/admin/galaxies/new" class="btn btn-success"
+        >+ Добавить галактику</a
+    >
 </div>
 
-{{if .Planets}}
+{{if .Galaxies}}
 <div class="admin-table-container">
     <table class="admin-table">
         <thead>
@@ -21,32 +23,38 @@
                 <th>ID</th>
                 <th>Название</th>
                 <th>Тип</th>
-                <th>Диаметр (км)</th>
-                <th>Есть жизнь</th>
+                <th>Диаметр (св. лет)</th>
+                <th>Год открытия</th>
                 <th>Действия</th>
             </tr>
         </thead>
         <tbody>
-            {{range .Planets}}
+            {{range .Galaxies}}
             <tr>
                 <td>{{.ID}}</td>
                 <td>{{.Name}}</td>
                 <td>{{.Type}}</td>
-                <td>{{.DiameterKm}}</td>
-                <td>{{if .HasLife}}✅ Да{{else}}❌ Нет{{end}}</td>
+                <td>
+                    {{if .DiameterLy}} {{formatNumber .DiameterLy}} {{else}} -
+                    {{end}}
+                </td>
+                <td>
+                    {{if .DiscoveredYear}} {{.DiscoveredYear}} {{else}} -
+                    {{end}}
+                </td>
                 <td class="actions">
                     <a
-                        href="/admin/planets/delete/{{.ID}}"
+                        href="/admin/galaxies/delete/{{.ID}}"
                         class="btn-small btn-delete"
                         >🗑️</a
                     >
                     <a
-                        href="/admin/planets/edit/{{.ID}}"
+                        href="/admin/galaxies/edit/{{.ID}}"
                         class="btn-small btn-edit"
                         >✏️</a
                     >
                     <a
-                        href="/planets/{{.ID}}"
+                        href="/galaxies/{{.ID}}"
                         class="btn-small btn-view"
                         target="_blank"
                         >👁️</a
@@ -59,15 +67,15 @@
 </div>
 {{else}}
 <div class="empty-state">
-    <p>Планеты не найдены</p>
-    <a href="/admin/planets/new" class="btn btn-success"
-        >Добавить первую планету</a
+    <p>Галактики не найдены</p>
+    <a href="/admin/galaxies/new" class="btn btn-success"
+        >Добавить первую галактику</a
     >
 </div>
 {{end}}
 
 <div class="admin-info">
-    <h3>Всего планет: {{.PlanetCount}}</h3>
+    <h3>Всего галактик: {{.GalaxyCount}}</h3>
     <a href="/admin" class="btn">← Назад в админку</a>
 </div>
 {{end}}

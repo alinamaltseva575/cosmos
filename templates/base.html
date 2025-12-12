@@ -1,3 +1,4 @@
+{{define "base.html"}}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -49,8 +50,20 @@
         {{else if eq .CurrentPage "admin_planet_form"}}
             {{template "admin_planet_form" .}}
 
-        {{else if eq .CurrentPage "admin_login"}}
-            {{template "admin_login" .}}
+        {{else if eq .CurrentPage "admin_galaxies"}}
+            {{template "admin_galaxies" .}}
+
+        {{else if eq .CurrentPage "admin_galaxy_form"}}
+            {{template "admin_galaxy_form" .}}
+
+        {{else if eq .CurrentPage "admin_users"}}
+            {{template "admin_users" .}}
+
+        {{else if eq .CurrentPage "admin_user_form"}}
+            {{template "admin_user_form" .}}
+
+        {{else if eq .CurrentPage "admin_user_detail"}}
+            {{template "admin_user_detail" .}}
 
         {{else}}
             <h1>Страница в разработке</h1>
@@ -64,3 +77,4 @@
     </footer>
 </body>
 </html>
+{{end}}

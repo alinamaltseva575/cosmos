@@ -1,0 +1,105 @@
+{{define "admin_user_form"}}
+<div class="admin-header">
+    <h1>{{if .User.ID}}✏️ Редактирование пользователя{{else}}➕ Создание пользователя{{end}}</h1>
+    <p>{{if .User.ID}}Измените данные пользователя{{else}}Заполните форму для добавления нового пользователя{{end}}</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="/admin/users" class="btn btn-secondary">← Назад к списку пользователей</a>
+</div>
+
+{{if .Error}}
+<div class="error-message">
+    <strong>Ошибка:</strong> {{.Error}}
+</div>
+{{end}}
+
+{{if .Success}}
+<div class="success-message">
+    ✅ {{.Success}}
+</div>
+{{end}}
+
+<form method="POST"
+      action="{{if .User.ID}}/admin/users/edit/{{.User.ID}}{{else}}/admin/users/new{{end}}"
+      class="admin-form">
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="username">Логин *</label>
+            <input type="text" id="username" name="username" required
+                   value="{{.User.Username}}" placeholder="username">
+            <small class="form-text">Уникальное имя для входа</small>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required
+                   value="{{.User.Email}}" placeholder="user@example.com">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="role">Роль *</label>
+            <select id="role" name="role" required>
+                <option value="">Выберите роль</option>
+                <option value="user" {{if eq .User.Role "user"}}selected{{end}}>👤 Пользователь</option>
+                <option value="admin" {{if eq .User.Role "admin"}}selected{{end}}>👑 Администратор</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="password">
+                {{if .User.ID}}Новый пароль{{else}}Пароль *{{end}}
+            </label>
+            <input type="password" id="password" name="password"
+                   {{if not .User.ID}}required{{end}}
+                   placeholder="{{if .User.ID}}Оставьте пустым, чтобы не менять{{else}}Минимум 6 символов{{end}}">
+            <small class="form-text">
+                {{if .User.ID}}
+                Заполните только если хотите изменить пароль
+                {{else}}
+                Минимум 6 символов
+                {{end}}
+            </small>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            {{if .User.ID}}💾 Сохранить изменения{{else}}➕ Создать пользователя{{end}}
+        </button>
+        <a href="/admin/users" class="btn btn-secondary">Отмена</a>
+
+        {{if .User.ID}}
+            {{if ne .User.ID 1}}
+            <a href="/admin/users/{{.User.ID}}/delete"
+               class="btn btn-danger"
+               onclick="return confirm('Удалить пользователя {{.User.Username}}?')">
+                🗑️ Удалить пользователя
+            </a>
+            {{else}}
+            <span class="form-text" style="color: #ff9800; margin-left: 15px;">
+                ⚠️ Главного администратора нельзя удалить
+            </span>
+            {{end}}
+        {{end}}
+    </div>
+</form>
+
+{{if .User.ID}}
+<div class="admin-info">
+    <h3>Информация о пользователе</h3>
+    <ul>
+        <li>ID: {{.User.ID}}</li>
+        <li>Зарегистрирован: {{.User.CreatedAt.Format "02.01.2006 15:04"}}</li>
+        <li>Роль:
+            <span class="badge {{if eq .User.Role "admin"}}admin-badge{{else}}user-badge{{end}}">
+                {{if eq .User.Role "admin"}}👑 Администратор{{else}}👤 Пользователь{{end}}
+            </span>
+        </li>
+    </ul>
+</div>
+{{end}}
+{{end}}

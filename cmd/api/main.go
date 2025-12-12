@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	"cosmos/config"
 	"cosmos/internal/handler"
@@ -40,22 +39,32 @@ func main() {
 	http.HandleFunc("/planets/", h.PlanetDetailHandler)
 	http.HandleFunc("/galaxies", h.GalaxiesHandler)
 	http.HandleFunc("/galaxies/", h.GalaxyDetailHandler)
+
+	// Авторизация
 	http.HandleFunc("/admin/login", h.AdminLoginHandler)
-	http.HandleFunc("/admin", h.AdminDashboardHandler)
 	http.HandleFunc("/admin/logout", h.AdminLogoutHandler)
+
+	// Админ-панель
+	http.HandleFunc("/admin", h.AdminDashboardHandler)
+
+	// Планеты
 	http.HandleFunc("/admin/planets", h.AdminPlanetsHandler)
 	http.HandleFunc("/admin/planets/new", h.AdminNewPlanetHandler)
-	http.HandleFunc("/admin/planets/", func(w http.ResponseWriter, r *http.Request) {
-		// Определяем, какой обработчик вызвать
-		pathParts := strings.Split(r.URL.Path, "/")
-		if len(pathParts) == 5 && pathParts[3] == "edit" {
-			h.AdminEditPlanetHandler(w, r)
-		} else if len(pathParts) == 5 && pathParts[3] == "delete" {
-			h.AdminDeletePlanetHandler(w, r)
-		} else {
-			http.NotFound(w, r)
-		}
-	})
+	http.HandleFunc("/admin/planets/delete/", h.AdminDeletePlanetHandler) // ПРОСТОЙ путь
+	http.HandleFunc("/admin/planets/edit/", h.AdminEditPlanetHandler)     // ПРОСТОЙ путь
+
+	// Галактики
+	http.HandleFunc("/admin/galaxies", h.AdminGalaxiesHandler)
+	http.HandleFunc("/admin/galaxies/new", h.AdminNewGalaxyHandler)
+	http.HandleFunc("/admin/galaxies/delete/", h.AdminDeleteGalaxyHandler) // ПРОСТОЙ путь
+	http.HandleFunc("/admin/galaxies/edit/", h.AdminEditGalaxyHandler)     // ПРОСТОЙ путь
+
+	// Пользователи
+	http.HandleFunc("/admin/users", h.AdminUsersHandler)
+	http.HandleFunc("/admin/users/new", h.AdminNewUserHandler)
+	http.HandleFunc("/admin/users/delete/", h.AdminDeleteUserHandler) // ПРОСТОЙ путь
+	http.HandleFunc("/admin/users/edit/", h.AdminEditUserHandler)     // ПРОСТОЙ путь
+	http.HandleFunc("/admin/users/view/", h.AdminUserDetailHandler)   // ДЛЯ ПРОСМОТРА
 
 	// Статические файлы
 	fs := http.FileServer(http.Dir("static"))

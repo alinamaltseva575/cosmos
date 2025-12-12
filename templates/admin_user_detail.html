@@ -1,0 +1,89 @@
+{{define "admin_user_detail"}}
+<div class="admin-header">
+    <h1>✏️ Редактирование пользователя: {{.User.Username}}</h1>
+    <p>Измените данные пользователя</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="/admin/users" class="btn btn-secondary">← Назад к списку пользователей</a>
+</div>
+
+{{if .Error}}
+<div class="error-message">
+    <strong>Ошибка:</strong> {{.Error}}
+</div>
+{{end}}
+
+{{if .Success}}
+<div class="success-message">
+    {{.Success}}
+</div>
+{{end}}
+
+<form method="POST" action="/admin/users/{{.User.ID}}/edit" class="admin-form">
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="username">Логин *</label>
+            <input type="text" id="username" name="username" required
+                   value="{{.User.Username}}" placeholder="username">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required
+                   value="{{.User.Email}}" placeholder="user@example.com">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="role">Роль *</label>
+        <select id="role" name="role" required>
+            <option value="">Выберите роль</option>
+            <option value="admin" {{if eq .User.Role "admin"}}selected{{end}}>👑 Администратор</option>
+            <option value="user" {{if eq .User.Role "user"}}selected{{end}}>👤 Пользователь</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="password">Новый пароль (оставьте пустым, чтобы не менять)</label>
+        <input type="password" id="password" name="password"
+               placeholder="Новый пароль">
+        <small class="form-text">Минимум 6 символов</small>
+    </div>
+
+    <div class="form-group">
+        <label for="password_confirm">Подтверждение пароля</label>
+        <input type="password" id="password_confirm" name="password_confirm"
+               placeholder="Подтвердите пароль">
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            💾 Сохранить изменения
+        </button>
+        <a href="/admin/users" class="btn btn-secondary">Отмена</a>
+        {{if ne .User.ID 1}} {{/* Не показываем удаление для первого админа */}}
+        <a href="/admin/users/{{.User.ID}}/delete"
+           class="btn btn-danger"
+           onclick="return confirm('Удалить пользователя {{.User.Username}}?')">
+            🗑️ Удалить пользователя
+        </a>
+        {{end}}
+    </div>
+</form>
+
+<div class="admin-info">
+    <h3>Информация о пользователе</h3>
+    <ul>
+        <li>ID: {{.User.ID}}</li>
+        <li>Зарегистрирован: {{.User.CreatedAt.Format "02.01.2006 15:04"}}</li>
+        <li>Роль: <span class="badge {{if eq .User.Role "admin"}}admin-badge{{else}}user-badge{{end}}">
+            {{if eq .User.Role "admin"}}👑 Администратор{{else}}👤 Пользователь{{end}}
+        </span></li>
+        {{if .PlanetCount}}
+        <li>Создал планет: {{.PlanetCount}}</li>
+        {{end}}
+    </ul>
+</div>
+{{end}}

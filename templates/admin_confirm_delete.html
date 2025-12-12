@@ -1,0 +1,66 @@
+{{define "admin_confirm_delete"}}
+<div class="admin-header">
+    <h1>🗑️ Подтверждение удаления</h1>
+    <p>Вы уверены, что хотите удалить этот объект?</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="{{.ReturnURL}}" class="btn btn-secondary">← Отмена</a>
+</div>
+
+{{if .HasPlanets}}
+<div class="error-message">
+    <h3>⚠️ Невозможно удалить!</h3>
+    <p>В этой галактике есть <strong>{{.PlanetCount}} планет(а/ы)</strong>.</p>
+    <p>Сначала удалите или переместите все планеты из этой галактики.</p>
+    <div class="form-actions">
+        <a href="{{.ReturnURL}}" class="btn btn-secondary"
+            >Вернуться к списку</a
+        >
+    </div>
+</div>
+{{else}}
+<div class="delete-confirmation">
+    <div class="warning-box">
+        <h3>⚠️ Внимание!</h3>
+        <p>
+            Это действие <strong>нельзя отменить</strong>. Объект будет удален
+            безвозвратно.
+        </p>
+    </div>
+
+    <div class="object-info">
+        <h3>Информация об объекте:</h3>
+        <div class="info-card">
+            <h4>{{.ObjectType}}: {{.ObjectName}}</h4>
+
+            {{if eq .ObjectType "Планета"}}
+            <p><strong>Тип:</strong> {{.ObjectData.Type}}</p>
+            <p><strong>Диаметр:</strong> {{.ObjectData.DiameterKm}} км</p>
+            {{if .ObjectData.GalaxyName}}
+            <p><strong>Галактика:</strong> {{.ObjectData.GalaxyName}}</p>
+            {{end}} {{else if eq .ObjectType "Галактика"}}
+            <p><strong>Тип:</strong> {{.ObjectData.Type}}</p>
+            {{if .ObjectData.DiameterLy}}
+            <p><strong>Диаметр:</strong> {{.ObjectData.DiameterLy}} св. лет</p>
+            {{end}} {{else if eq .ObjectType "Пользователь"}}
+            <p><strong>Email:</strong> {{.ObjectData.Email}}</p>
+            <p><strong>Роль:</strong> {{.ObjectData.Role}}</p>
+            <p>
+                <strong>Создан:</strong> {{.ObjectData.CreatedAt.Format
+                "02.01.2006"}}
+            </p>
+            {{end}}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <form method="POST" action="{{.DeleteURL}}" style="display: inline">
+            <button type="submit" class="btn btn-danger btn-large">
+                🗑️ Да, удалить
+            </button>
+        </form>
+        <a href="{{.ReturnURL}}" class="btn btn-secondary">❌ Отмена</a>
+    </div>
+</div>
+{{end}} {{end}}

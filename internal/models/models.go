@@ -25,6 +25,7 @@ type Planet struct {
 	DiscoveredYear    *int      `json:"discovered_year,omitempty"`
 	Description       string    `json:"description"`
 	CreatedAt         time.Time `json:"created_at"`
+	UpdatedAt         time.Time `json:"updated_at,omitempty"`
 }
 
 type Galaxy struct {
@@ -58,12 +59,18 @@ type PageData struct {
 	CurrentPage string
 	PlanetCount int
 	GalaxyCount int
+	UserCount   int // ДОБАВЬТЕ
 	Planets     []Planet
 	Planet      *Planet
 	Galaxies    []Galaxy
 	Galaxy      *Galaxy
-	// Для будущей авторизации
-	IsAdmin  bool
-	Username string
-	Role     string // ДОБАВЬТЕ ЭТО ПОЛЕ
+	Users       []User // ДОБАВЬТЕ
+	User        *User  // ДОБАВЬТЕ
+	IsAdmin     bool
+	Username    string
+	Role        string
+	AppPort     string // ДОБАВЬТЕ
+	Environment string // ДОБАВЬТЕ
+	Error       string // ДОБАВЬТЕ для ошибок форм
+	Success     string // ДОБАВЬТЕ для успешных сообщений
 }
