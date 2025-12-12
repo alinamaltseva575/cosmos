@@ -141,7 +141,7 @@ func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request)
 
 	data := models.PageData{
 		Title:       "Просмотр пользователя: " + user.Username,
-		CurrentPage: "admin_user_detail",
+		CurrentPage: "admin_user_form",
 		User:        &user,
 		PlanetCount: planetCount,
 		IsAdmin:     true,

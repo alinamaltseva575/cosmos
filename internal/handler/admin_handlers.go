@@ -55,24 +55,24 @@ func (h *Handler) AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if err == sql.ErrNoRows {
 				data.Error = "Неверный логин или пароль"
-				log.Printf("❌ Пользователь не найден: %s", username)
+				log.Printf("Пользователь не найден: %s", username)
 			} else {
-				log.Printf("❌ Ошибка запроса пользователя: %v", err)
+				log.Printf("Ошибка запроса пользователя: %v", err)
 				data.Error = "Ошибка сервера"
 			}
 		} else if !auth.CheckPassword(password, user.PasswordHash) {
 			data.Error = "Неверный логин или пароль"
-			log.Printf("❌ Неверный пароль для: %s", username)
+			log.Printf("Неверный пароль для: %s", username)
 		} else if user.Role != "admin" {
 			data.Error = "У вас нет прав администратора"
-			log.Printf("❌ Не админ: %s (роль: %s)", username, user.Role)
+			log.Printf("Не админ: %s (роль: %s)", username, user.Role)
 		} else {
 			log.Printf("✅ Успешная проверка логина/пароля для: %s", username)
 
 			// Создаем JWT токен
 			token, err := auth.GenerateToken(user.Username, user.Role, user.ID)
 			if err != nil {
-				log.Printf("❌ Ошибка создания токена: %v", err)
+				log.Printf("Ошибка создания токена: %v", err)
 				http.Error(w, "Ошибка сервера", http.StatusInternalServerError)
 				return
 			}
@@ -98,7 +98,7 @@ func (h *Handler) AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Используем шаблон admin_login
 	err := h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_login: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_login: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
@@ -132,7 +132,7 @@ func (h *Handler) AdminDashboardHandler(w http.ResponseWriter, r *http.Request) 
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
 	if err != nil {
-		log.Printf("❌ Ошибка выполнения шаблона admin_dashboard: %v", err)
+		log.Printf("Ошибка выполнения шаблона admin_dashboard: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
