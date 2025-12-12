@@ -114,15 +114,17 @@ func (h *Handler) AdminDashboardHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Получаем статистику
-	var planetCount, galaxyCount int
+	var planetCount, galaxyCount, adminCount int
 	h.DB.QueryRow("SELECT COUNT(*) FROM planets").Scan(&planetCount)
 	h.DB.QueryRow("SELECT COUNT(*) FROM galaxies").Scan(&galaxyCount)
+	h.DB.QueryRow("SELECT COUNT(*) FROM users WHERE role = 'admin'").Scan(&adminCount)
 
 	data := models.PageData{
 		Title:       "Админ-панель",
 		CurrentPage: "admin",
 		PlanetCount: planetCount,
 		GalaxyCount: galaxyCount,
+		UserCount:   adminCount, // Теперь динамическое количество админов
 		IsAdmin:     true,
 		Username:    claims.Username,
 		Role:        claims.Role,
