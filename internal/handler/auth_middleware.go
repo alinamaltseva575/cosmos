@@ -8,7 +8,6 @@ import (
 	"cosmos/internal/auth"
 )
 
-// requireAdminAuth - middleware для проверки авторизации админа
 func (h *Handler) requireAdminAuth(w http.ResponseWriter, r *http.Request) (*auth.Claims, error) {
 	token := auth.GetTokenFromRequest(r)
 	if token == "" {
