@@ -10,39 +10,47 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB // приватная переменная
+// DB - структура для работы с БД (вместо глобальной переменной)
+type DB struct {
+	conn *sql.DB
+}
 
-func Connect(cfg *config.Config) error {
+// NewDB создает новое подключение к БД
+func NewDB(cfg *config.Config) (*DB, error) {
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBSSLMode,
 	)
 
-	var err error
-	db, err = sql.Open("postgres", connStr)
+	conn, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return fmt.Errorf("не удалось подключиться к базе данных: %v", err)
+		return nil, fmt.Errorf("не удалось подключиться к базе данных: %v", err)
 	}
 
-	if err = db.Ping(); err != nil {
-		return fmt.Errorf("не удалось проверить подключение: %v", err)
+	if err = conn.Ping(); err != nil {
+		return nil, fmt.Errorf("не удалось проверить подключение: %v", err)
 	}
 
-	log.Println("Подключение к PostgreSQL установлено")
+	log.Println("✅ Подключение к PostgreSQL установлено")
+
+	return &DB{conn: conn}, nil
+}
+
+// GetDB возвращает sql.DB (для совместимости со старым кодом)
+func (d *DB) GetDB() *sql.DB {
+	return d.conn
+}
+
+// Close закрывает подключение
+func (d *DB) Close() error {
+	if d.conn != nil {
+		log.Println("Подключение к базе данных закрыто")
+		return d.conn.Close()
+	}
 	return nil
 }
 
-// GetDB возвращает соединение с БД
-func GetDB() *sql.DB {
-	if db == nil {
-		log.Fatal("БД не подключена! Сначала вызовите Connect()")
-	}
-	return db
-}
-
-func Close() {
-	if db != nil {
-		db.Close()
-		log.Println("Подключение к базе данных закрыто")
-	}
+// Ping проверяет соединение
+func (d *DB) Ping() error {
+	return d.conn.Ping()
 }

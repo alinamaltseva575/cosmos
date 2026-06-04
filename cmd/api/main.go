@@ -20,20 +20,17 @@ func main() {
 	// Загружаем конфигурацию
 	cfg := config.Load()
 
-	// Подключаемся к БД
-	err := database.Connect(cfg)
+	// Подключаемся к БД (НОВЫЙ СПОСОБ)
+	dbConn, err := database.NewDB(cfg)
 	if err != nil {
 		log.Fatalf("Ошибка подключения к БД: %v", err)
 	}
-	defer database.Close()
+	defer dbConn.Close()
 
-	// Получаем соединение через функцию
-	db := database.GetDB()
+	// Создаем обработчик (пока передаем dbConn.GetDB() для совместимости)
+	h := handler.NewHandler(dbConn.GetDB())
 
-	// Создаем обработчик
-	h := handler.NewHandler(db)
-
-	// Настраиваем маршруты
+	// Настраиваем маршруты (без изменений)
 	http.HandleFunc("/", h.HomeHandler)
 	http.HandleFunc("/planets", h.PlanetsHandler)
 	http.HandleFunc("/planets/", h.PlanetDetailHandler)
