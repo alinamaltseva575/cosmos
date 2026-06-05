@@ -17,20 +17,17 @@ func NewGalaxyService(galaxyRepo repository.GalaxyRepository) *GalaxyService {
 	}
 }
 
-// GetAllGalaxies - получить все галактики
 func (s *GalaxyService) GetAllGalaxies() ([]models.Galaxy, error) {
 	return s.galaxyRepo.GetAll()
 }
 
-// GetGalaxyByID - получить галактику по ID
-func (s *GalaxyService) GetGalaxyByID(id int) (*models.Galaxy, error) {
+func (s *GalaxyService) GetGalaxyByID(id int64) (*models.Galaxy, error) { // int64
 	if id <= 0 {
 		return nil, errors.New("неверный ID галактики")
 	}
 	return s.galaxyRepo.GetByID(id)
 }
 
-// CreateGalaxy - создание галактики с валидацией
 func (s *GalaxyService) CreateGalaxy(galaxy *models.Galaxy) error {
 	if galaxy.Name == "" {
 		return errors.New("название галактики обязательно")
@@ -45,7 +42,6 @@ func (s *GalaxyService) CreateGalaxy(galaxy *models.Galaxy) error {
 	return s.galaxyRepo.Create(galaxy)
 }
 
-// UpdateGalaxy - обновление галактики
 func (s *GalaxyService) UpdateGalaxy(galaxy *models.Galaxy) error {
 	if galaxy.ID <= 0 {
 		return errors.New("неверный ID галактики")
@@ -63,13 +59,11 @@ func (s *GalaxyService) UpdateGalaxy(galaxy *models.Galaxy) error {
 	return s.galaxyRepo.Update(galaxy)
 }
 
-// DeleteGalaxy - удаление галактики (с проверкой, что нет планет)
-func (s *GalaxyService) DeleteGalaxy(id int) error {
+func (s *GalaxyService) DeleteGalaxy(id int64) error { // int64
 	if id <= 0 {
 		return errors.New("неверный ID галактики")
 	}
 
-	// Проверяем, есть ли планеты в галактике
 	planetCount, err := s.galaxyRepo.GetPlanetCount(id)
 	if err != nil {
 		return err
@@ -81,12 +75,10 @@ func (s *GalaxyService) DeleteGalaxy(id int) error {
 	return s.galaxyRepo.Delete(id)
 }
 
-// GetGalaxyCount - количество галактик
 func (s *GalaxyService) GetGalaxyCount() (int, error) {
 	return s.galaxyRepo.Count()
 }
 
-// GetPlanetCountInGalaxy - количество планет в галактике
-func (s *GalaxyService) GetPlanetCountInGalaxy(id int) (int, error) {
+func (s *GalaxyService) GetPlanetCountInGalaxy(id int64) (int, error) { // int64
 	return s.galaxyRepo.GetPlanetCount(id)
 }

@@ -7,14 +7,13 @@ import (
 	"cosmos/internal/models"
 )
 
-// UserRepository - интерфейс для работы с пользователями
 type UserRepository interface {
 	GetAll() ([]models.User, error)
-	GetByID(id int) (*models.User, error)
+	GetByID(id int64) (*models.User, error) // int → int64
 	GetByUsername(username string) (*models.User, error)
 	Create(user *models.User) error
 	Update(user *models.User) error
-	Delete(id int) error
+	Delete(id int64) error // int → int64
 	Count() (int, error)
 	CountAdmins() (int, error)
 }
@@ -23,12 +22,10 @@ type userRepository struct {
 	db *sql.DB
 }
 
-// NewUserRepository - конструктор
 func NewUserRepository(db *sql.DB) UserRepository {
 	return &userRepository{db: db}
 }
 
-// GetAll - получить всех пользователей
 func (r *userRepository) GetAll() ([]models.User, error) {
 	rows, err := r.db.Query(`
 		SELECT id, username, email, role, created_at
@@ -53,8 +50,7 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 	return users, nil
 }
 
-// GetByID - получить пользователя по ID
-func (r *userRepository) GetByID(id int) (*models.User, error) {
+func (r *userRepository) GetByID(id int64) (*models.User, error) { // int64
 	var user models.User
 	err := r.db.QueryRow(`
 		SELECT id, username, email, role, created_at
@@ -72,7 +68,6 @@ func (r *userRepository) GetByID(id int) (*models.User, error) {
 	return &user, nil
 }
 
-// GetByUsername - получить пользователя по имени
 func (r *userRepository) GetByUsername(username string) (*models.User, error) {
 	var user models.User
 	err := r.db.QueryRow(`
@@ -91,7 +86,6 @@ func (r *userRepository) GetByUsername(username string) (*models.User, error) {
 	return &user, nil
 }
 
-// Create - создание пользователя
 func (r *userRepository) Create(user *models.User) error {
 	query := `
 		INSERT INTO users (username, email, password_hash, role)
@@ -104,7 +98,6 @@ func (r *userRepository) Create(user *models.User) error {
 	).Scan(&user.ID, &user.CreatedAt)
 }
 
-// Update - обновление пользователя
 func (r *userRepository) Update(user *models.User) error {
 	var query string
 	var args []interface{}
@@ -130,8 +123,7 @@ func (r *userRepository) Update(user *models.User) error {
 	return nil
 }
 
-// Delete - удаление пользователя
-func (r *userRepository) Delete(id int) error {
+func (r *userRepository) Delete(id int64) error { // int64
 	result, err := r.db.Exec("DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		return err
@@ -145,14 +137,12 @@ func (r *userRepository) Delete(id int) error {
 	return nil
 }
 
-// Count - количество пользователей
 func (r *userRepository) Count() (int, error) {
 	var count int
 	err := r.db.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	return count, err
 }
 
-// CountAdmins - количество администраторов
 func (r *userRepository) CountAdmins() (int, error) {
 	var count int
 	err := r.db.QueryRow("SELECT COUNT(*) FROM users WHERE role = 'admin'").Scan(&count)

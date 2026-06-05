@@ -108,7 +108,7 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[4])
+	id, err := strconv.ParseInt(pathParts[4], 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -178,7 +178,7 @@ func (h *Handler) AdminDeletePlanetHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[4])
+	id, err := strconv.ParseInt(pathParts[4], 10, 64) // Atoi → ParseInt
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -191,7 +191,7 @@ func (h *Handler) AdminDeletePlanetHandler(w http.ResponseWriter, r *http.Reques
 			return
 		}
 		h.showDeleteConfirmation(w, "Планета", planet.Name,
-			"/admin/planets/delete/"+strconv.Itoa(id),
+			"/admin/planets/delete/"+strconv.FormatInt(id, 10),
 			"/admin/planets", planet, false, 0)
 		return
 	}
@@ -238,7 +238,7 @@ func (h *Handler) parsePlanetForm(r *http.Request) models.Planet {
 		}
 	}
 	if galaxyID := r.FormValue("galaxy_id"); galaxyID != "" {
-		if val, err := strconv.Atoi(galaxyID); err == nil {
+		if val, err := strconv.ParseInt(galaxyID, 10, 64); err == nil { // Atoi → ParseInt
 			planet.GalaxyID = &val
 		}
 	}

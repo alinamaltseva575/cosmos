@@ -3,18 +3,18 @@ package models
 import "time"
 
 type User struct {
-	ID           int       `json:"id"`
+	ID           int64     `json:"id"` // int → int64
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
-	PasswordHash string    `json:"-"`    // Не отдаем хэш пароля в JSON
-	Role         string    `json:"role"` // "admin" или "user"
+	PasswordHash string    `json:"-"`
+	Role         string    `json:"role"`
 	CreatedAt    time.Time `json:"created_at"`
 }
 
 type Planet struct {
-	ID                int       `json:"id"`
+	ID                int64     `json:"id"` // int → int64
 	Name              string    `json:"name"`
-	GalaxyID          *int      `json:"galaxy_id,omitempty"`
+	GalaxyID          *int64    `json:"galaxy_id,omitempty"` // *int → *int64
 	GalaxyName        string    `json:"galaxy_name,omitempty"`
 	Type              string    `json:"type"`
 	DiameterKm        float64   `json:"diameter_km"`
@@ -29,7 +29,7 @@ type Planet struct {
 }
 
 type Galaxy struct {
-	ID                  int       `json:"id"`
+	ID                  int64     `json:"id"` // int → int64
 	Name                string    `json:"name"`
 	Type                string    `json:"type"`
 	DiameterLy          *float64  `json:"diameter_ly,omitempty"`
@@ -40,20 +40,17 @@ type Galaxy struct {
 	CreatedAt           time.Time `json:"created_at"`
 }
 
-// LoginData - данные для формы входа
 type LoginData struct {
 	Username string
 	Password string
 	Error    string
 }
 
-// AdminData - данные для админ-панели
 type AdminData struct {
 	PageData
 	Users []User
 }
 
-// PageData - данные для передачи в HTML шаблоны
 type PageData struct {
 	Title       string
 	CurrentPage string
@@ -71,6 +68,6 @@ type PageData struct {
 	Role        string
 	AppPort     string
 	Environment string
-	Error       string // для ошибок форм
-	Success     string // для успешных сообщений
+	Error       string
+	Success     string
 }

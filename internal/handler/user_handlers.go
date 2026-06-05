@@ -100,7 +100,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[4])
+	id, err := strconv.ParseInt(pathParts[4], 10, 64) // Atoi → ParseInt
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -167,7 +167,7 @@ func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[4])
+	id, err := strconv.ParseInt(pathParts[4], 10, 64) // Atoi → ParseInt
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -180,7 +180,7 @@ func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		h.showDeleteConfirmation(w, "Пользователь", user.Username,
-			"/admin/users/delete/"+strconv.Itoa(id),
+			"/admin/users/delete/"+strconv.FormatInt(id, 10),
 			"/admin/users", user, false, 0)
 		return
 	}
@@ -214,7 +214,7 @@ func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[2])
+	id, err := strconv.ParseInt(pathParts[2], 10, 64) // Atoi → ParseInt
 	if err != nil {
 		http.NotFound(w, r)
 		return

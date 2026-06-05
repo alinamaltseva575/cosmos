@@ -7,27 +7,24 @@ import (
 	"cosmos/internal/models"
 )
 
-// PlanetRepository - интерфейс для работы с планетами
 type PlanetRepository interface {
 	GetAll() ([]models.Planet, error)
-	GetByID(id int) (*models.Planet, error)
+	GetByID(id int64) (*models.Planet, error) // int → int64
 	Create(planet *models.Planet) error
 	Update(planet *models.Planet) error
-	Delete(id int) error
+	Delete(id int64) error // int → int64
 	Count() (int, error)
-	GetGalaxies() ([]models.Galaxy, error) // для выпадающего списка
+	GetGalaxies() ([]models.Galaxy, error)
 }
 
 type planetRepository struct {
 	db *sql.DB
 }
 
-// NewPlanetRepository - конструктор
 func NewPlanetRepository(db *sql.DB) PlanetRepository {
 	return &planetRepository{db: db}
 }
 
-// GetAll - получить все планеты
 func (r *planetRepository) GetAll() ([]models.Planet, error) {
 	query := `
 		SELECT p.id, p.name, p.type, p.diameter_km, p.mass_kg,
@@ -61,8 +58,7 @@ func (r *planetRepository) GetAll() ([]models.Planet, error) {
 	return planets, nil
 }
 
-// GetByID - получить планету по ID
-func (r *planetRepository) GetByID(id int) (*models.Planet, error) {
+func (r *planetRepository) GetByID(id int64) (*models.Planet, error) { // int64
 	var planet models.Planet
 	var discoveredYear sql.NullInt64
 	var galaxyID sql.NullInt64
@@ -91,14 +87,13 @@ func (r *planetRepository) GetByID(id int) (*models.Planet, error) {
 		return nil, err
 	}
 
-	// Обрабатываем nullable поля
 	if discoveredYear.Valid {
 		year := int(discoveredYear.Int64)
 		planet.DiscoveredYear = &year
 	}
 	if galaxyID.Valid {
-		id := int(galaxyID.Int64)
-		planet.GalaxyID = &id
+		idVal := galaxyID.Int64
+		planet.GalaxyID = &idVal
 	}
 	if massKg.Valid {
 		planet.MassKg = massKg.Float64
@@ -110,7 +105,6 @@ func (r *planetRepository) GetByID(id int) (*models.Planet, error) {
 	return &planet, nil
 }
 
-// Create - создание планеты
 func (r *planetRepository) Create(planet *models.Planet) error {
 	query := `
 		INSERT INTO planets (name, type, description, diameter_km, mass_kg,
@@ -142,7 +136,6 @@ func (r *planetRepository) Create(planet *models.Planet) error {
 	).Scan(&planet.ID, &planet.CreatedAt)
 }
 
-// Update - обновление планеты
 func (r *planetRepository) Update(planet *models.Planet) error {
 	query := `
 		UPDATE planets
@@ -187,8 +180,7 @@ func (r *planetRepository) Update(planet *models.Planet) error {
 	return nil
 }
 
-// Delete - удаление планеты
-func (r *planetRepository) Delete(id int) error {
+func (r *planetRepository) Delete(id int64) error { // int64
 	result, err := r.db.Exec("DELETE FROM planets WHERE id = $1", id)
 	if err != nil {
 		return err
@@ -202,14 +194,12 @@ func (r *planetRepository) Delete(id int) error {
 	return nil
 }
 
-// Count - количество планет
 func (r *planetRepository) Count() (int, error) {
 	var count int
 	err := r.db.QueryRow("SELECT COUNT(*) FROM planets").Scan(&count)
 	return count, err
 }
 
-// GetGalaxies - получить все галактики (для выпадающего списка)
 func (r *planetRepository) GetGalaxies() ([]models.Galaxy, error) {
 	rows, err := r.db.Query("SELECT id, name FROM galaxies ORDER BY name")
 	if err != nil {

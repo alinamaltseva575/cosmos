@@ -65,7 +65,7 @@ func (h *Handler) PlanetDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[2])
+	id, err := strconv.ParseInt(pathParts[2], 10, 64) // Atoi → ParseInt
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -126,7 +126,7 @@ func (h *Handler) GalaxyDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(pathParts[2])
+	id, err := strconv.ParseInt(pathParts[2], 10, 64) // Atoi → ParseInt
 	if err != nil {
 		http.NotFound(w, r)
 		return

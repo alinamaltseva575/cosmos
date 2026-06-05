@@ -21,28 +21,24 @@ func init() {
 	}
 }
 
-// Claims - структура для JWT токена
 type Claims struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
-	UserID   int    `json:"user_id"`
+	UserID   int64  `json:"user_id"` // int → int64
 	jwt.RegisteredClaims
 }
 
-// HashPassword - хэширование пароля
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
 
-// CheckPassword - проверка пароля
 func CheckPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-// GenerateToken - создание JWT токена
-func GenerateToken(username, role string, userID int) (string, error) {
+func GenerateToken(username, role string, userID int64) (string, error) { // int → int64
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &Claims{
@@ -60,7 +56,6 @@ func GenerateToken(username, role string, userID int) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-// ValidateToken - проверка JWT токена
 func ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
@@ -79,14 +74,11 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-// GetTokenFromRequest - получение токена из запроса
 func GetTokenFromRequest(r *http.Request) string {
-	// Пробуем получить из cookie
 	if cookie, err := r.Cookie("auth_token"); err == nil {
 		return cookie.Value
 	}
 
-	// Пробуем получить из заголовка Authorization
 	authHeader := r.Header.Get("Authorization")
 	if authHeader != "" && strings.HasPrefix(authHeader, "Bearer ") {
 		return authHeader[7:]
