@@ -46,7 +46,7 @@ func (h *Handler) AdminGalaxiesHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) AdminNewGalaxyHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -55,6 +55,9 @@ func (h *Handler) AdminNewGalaxyHandler(w http.ResponseWriter, r *http.Request) 
 		Title       string
 		CurrentPage string
 		IsAdmin     bool
+		IsAuth      bool
+		Username    string
+		Role        string
 		Galaxy      models.Galaxy
 		Error       string
 	}
@@ -63,6 +66,9 @@ func (h *Handler) AdminNewGalaxyHandler(w http.ResponseWriter, r *http.Request) 
 		Title:       "Добавление галактики",
 		CurrentPage: "admin_galaxy_form",
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 		Galaxy:      models.Galaxy{},
 	}
 
@@ -88,7 +94,7 @@ func (h *Handler) AdminNewGalaxyHandler(w http.ResponseWriter, r *http.Request) 
 func (h *Handler) AdminEditGalaxyHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -99,7 +105,7 @@ func (h *Handler) AdminEditGalaxyHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := strconv.ParseInt(pathParts[4], 10, 64) // Atoi → ParseInt
+	id, err := strconv.ParseInt(pathParts[4], 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -115,6 +121,9 @@ func (h *Handler) AdminEditGalaxyHandler(w http.ResponseWriter, r *http.Request)
 		Title       string
 		CurrentPage string
 		IsAdmin     bool
+		IsAuth      bool
+		Username    string
+		Role        string
 		Galaxy      models.Galaxy
 		Error       string
 	}
@@ -123,6 +132,9 @@ func (h *Handler) AdminEditGalaxyHandler(w http.ResponseWriter, r *http.Request)
 		Title:       "Редактирование галактики",
 		CurrentPage: "admin_galaxy_form",
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 		Galaxy:      *galaxy,
 	}
 

@@ -124,10 +124,15 @@ func (s *UserService) UpdateUser(id int64, username, email, role, newPassword st
 	return s.userRepo.Update(user)
 }
 
-// DeleteUser - удаление пользователя (с проверкой последнего админа)
-func (s *UserService) DeleteUser(id int64) error {
+// DeleteUser - удаление пользователя
+func (s *UserService) DeleteUser(id int64, currentUserID int64, currentUserRole string) error {
 	if id <= 0 {
 		return errors.New("неверный ID пользователя")
+	}
+
+	// Нельзя удалить главного админа (id=1)
+	if id == 1 {
+		return errors.New("нельзя удалить главного администратора")
 	}
 
 	// Получаем пользователя
@@ -136,8 +141,14 @@ func (s *UserService) DeleteUser(id int64) error {
 		return err
 	}
 
-	// Если это админ - проверяем, не последний ли он
+	// Если удаляем админа
 	if user.Role == "admin" {
+		// Только главный админ (id=1) может удалять других админов
+		if currentUserID != 1 {
+			return errors.New("только главный администратор может удалять других администраторов")
+		}
+
+		// Проверяем, не последний ли это админ
 		adminCount, err := s.userRepo.CountAdmins()
 		if err != nil {
 			return err

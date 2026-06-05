@@ -27,47 +27,9 @@
     </div>
 </div>
 
-<div class="admin-actions">
-    <div class="action-card">
-        <h3>🌍 Управление планетами</h3>
-        <p>Добавление, редактирование и удаление планет</p>
-        <div class="action-buttons">
-            <a href="/admin/planets" class="btn">Список планет</a>
-            <a href="/admin/planets/new" class="btn btn-success"
-                >+ Добавить планету</a
-            >
-        </div>
-    </div>
-
-    <div class="action-card">
-        <h3>🌌 Управление галактиками</h3>
-        <p>Добавление, редактирование и удаление галактик</p>
-        <div class="action-buttons">
-            <a href="/admin/galaxies" class="btn">Список галактик</a>
-            <a href="/admin/galaxies/new" class="btn btn-success"
-                >+ Добавить галактику</a
-            >
-        </div>
-    </div>
-
-    <div class="action-card">
-        <h3>👥 Управление пользователями</h3>
-        <p>Создание, редактирование и удаление пользователей</p>
-        <div class="action-buttons">
-            <a href="/admin/users" class="btn">Список пользователей</a>
-            <a href="/admin/users/new" class="btn btn-success"
-                >+ Добавить пользователя</a
-            >
-        </div>
-    </div>
-</div>
-
 <div class="admin-info">
     <h3>Информация о сессии</h3>
     <p>Вы вошли как: <strong>{{.Username}}</strong></p>
     <p>Роль: <span class="badge admin-badge">{{.Role}}</span></p>
-    <form action="/admin/logout" method="POST" style="margin-top: 20px">
-        <button type="submit" class="btn btn-danger">🚪 Выйти</button>
-    </form>
 </div>
 {{end}}

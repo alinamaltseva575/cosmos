@@ -62,14 +62,7 @@
         </tbody>
     </table>
 </div>
-{{else}}
-<div class="empty-state">
-    <p>У вас пока нет галактик</p>
-    <a href="/my/galaxies/new" class="btn btn-success"
-        >Добавить первую галактику</a
-    >
-</div>
-{{end}}
+{{else}} {{end}}
 
 <div class="admin-info">
     <h3>Всего ваших галактик: {{len .Galaxies}}</h3>

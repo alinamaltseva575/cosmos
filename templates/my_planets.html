@@ -57,14 +57,7 @@
         </tbody>
     </table>
 </div>
-{{else}}
-<div class="empty-state">
-    <p>У вас пока нет планет</p>
-    <a href="/my/planets/new" class="btn btn-success"
-        >Добавить первую планету</a
-    >
-</div>
-{{end}}
+{{else}} {{end}}
 
 <div class="admin-info">
     <h3>Всего ваших планет: {{len .Planets}}</h3>

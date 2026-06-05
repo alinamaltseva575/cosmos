@@ -512,28 +512,31 @@ func (h *Handler) ProfileDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if claims.Role == "admin" {
-		http.Error(w, "Администратор не может удалить себя через этот раздел. Используйте админ-панель.", http.StatusForbidden)
+	// Только НЕ главный админ может удалить себя через профиль
+	// Главный админ удаляет себя через админ-панель
+	if claims.Role == "admin" && claims.UserID == 1 {
+		http.Error(w, "Главный администратор может удалить свой аккаунт только через админ-панель", http.StatusForbidden)
 		return
 	}
 
+	// Разрешаем удаление для обычных пользователей и обычных админов
 	if r.Method == http.MethodGet {
-		// Простая HTML страница подтверждения
 		w.Write([]byte(`
 			<!DOCTYPE html>
 			<html>
 			<head><title>Удаление аккаунта</title></head>
-			<body style="background:#0a0a2a;color:white;font-family:Arial;padding:50px;">
-				<div style="max-width:500px;margin:0 auto;background:#1a1a2e;padding:30px;border-radius:10px;">
-					<h1 style="color:#f44336;">🗑️ Удаление аккаунта</h1>
-					<div style="background:rgba(244,67,54,0.1);border:1px solid #f44336;padding:15px;border-radius:5px;margin:20px 0;">
+			<body style="background:#f5f7fa;color:#2c3e50;font-family:Arial;padding:50px;">
+				<div style="max-width:500px;margin:0 auto;background:white;padding:30px;border-radius:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1);">
+					<h1 style="color:#e53e3e;">🗑️ Удаление аккаунта</h1>
+					<div style="background:#fff5f5;border:1px solid #fc8181;padding:15px;border-radius:8px;margin:20px 0;">
 						<p>Вы уверены, что хотите удалить свой аккаунт?</p>
 						<p>Это действие <strong>нельзя отменить</strong>.</p>
 					</div>
 					<p><strong>Логин:</strong> ` + claims.Username + `</p>
+					<p><strong>Роль:</strong> ` + claims.Role + `</p>
 					<form method="POST" action="/profile/delete" style="margin-top:20px;">
-						<button type="submit" style="background:#f44336;color:white;padding:10px20px;border:none;cursor:pointer;">🗑️ Да, удалить</button>
-						<a href="/dashboard" style="background:#666;color:white;padding:10px20px;text-decoration:none;">Отмена</a>
+						<button type="submit" style="background:#e53e3e;color:white;padding:10px 20px;border:none;cursor:pointer;border-radius:8px;">🗑️ Да, удалить</button>
+						<a href="/dashboard" style="background:#a0aec0;color:white;padding:10px 20px;text-decoration:none;border-radius:8px;margin-left:10px;">Отмена</a>
 					</form>
 				</div>
 			</body>
@@ -547,7 +550,7 @@ func (h *Handler) ProfileDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UserService.DeleteUser(claims.UserID)
+	err = h.UserService.DeleteUser(claims.UserID, claims.UserID, claims.Role)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

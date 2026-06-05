@@ -32,6 +32,7 @@ func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 		IsAuth:      true,
 		Username:    claims.Username,
 		Role:        claims.Role,
+		UserID:      claims.UserID,
 	}
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
@@ -58,7 +59,7 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 		Role        string
 		User        models.User
 		Error       string
-		Success     string // ДОБАВЛЕНО!
+		Success     string
 	}
 
 	data := FormData{
@@ -96,6 +97,64 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+	claims, err := h.requireAdminAuth(w, r)
+	if err != nil {
+		return
+	}
+
+	pathParts := strings.Split(r.URL.Path, "/")
+	if len(pathParts) != 5 {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err := strconv.ParseInt(pathParts[4], 10, 64)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Нельзя удалить админа (id=1) НИКОГДА
+	if id == 1 {
+		http.Error(w, "Нельзя удалить главного администратора", http.StatusForbidden)
+		return
+	}
+
+	userToDelete, err := h.UserService.GetUserByID(id)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Нельзя удалять админов
+	if userToDelete.Role == "admin" {
+		http.Error(w, "Нельзя удалять администраторов", http.StatusForbidden)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		h.showDeleteConfirmation(w, "Пользователь", userToDelete.Username,
+			"/admin/users/delete/"+strconv.FormatInt(id, 10),
+			"/admin/users", userToDelete, false, 0)
+		return
+	}
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err = h.UserService.DeleteUser(id, claims.UserID, claims.Role)
+	if err != nil {
+		log.Printf("Ошибка удаления пользователя: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	http.Redirect(w, r, "/admin/users?success=Пользователь+удален", http.StatusFound)
+}
+
 func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
@@ -116,9 +175,22 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Получаем пользователя
 	user, err := h.UserService.GetUserByID(id)
 	if err != nil {
 		http.NotFound(w, r)
+		return
+	}
+
+	// Если это админ (id=1) и редактируем НЕ себя - запрещаем
+	if user.Role == "admin" && id != claims.UserID {
+		http.Error(w, "Нельзя редактировать другого администратора", http.StatusForbidden)
+		return
+	}
+
+	// Если это обычный пользователь, но редактируем админа - запрещаем (на всякий случай)
+	if user.Role == "admin" && claims.Role != "admin" {
+		http.Error(w, "Доступ запрещен", http.StatusForbidden)
 		return
 	}
 
@@ -150,17 +222,22 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		role := r.FormValue("role")
 		password := r.FormValue("password")
 
-		err := h.UserService.UpdateUser(id, username, email, role, password)
-		if err != nil {
-			data.Error = err.Error()
-			data.User.Username = username
-			data.User.Email = email
-			data.User.Role = role
+		// Обычный пользователь не может повысить себе роль до админа
+		if claims.Role != "admin" && role == "admin" {
+			data.Error = "Нельзя повысить роль до администратора"
 		} else {
-			data.Success = "Пользователь успешно обновлен!"
-			data.User.Username = username
-			data.User.Email = email
-			data.User.Role = role
+			err := h.UserService.UpdateUser(id, username, email, role, password)
+			if err != nil {
+				data.Error = err.Error()
+				data.User.Username = username
+				data.User.Email = email
+				data.User.Role = role
+			} else {
+				data.Success = "Пользователь успешно обновлен!"
+				data.User.Username = username
+				data.User.Email = email
+				data.User.Role = role
+			}
 		}
 	}
 
@@ -169,51 +246,6 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Ошибка выполнения шаблона: %v", err)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
-}
-
-func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := h.requireAdminAuth(w, r)
-	if err != nil {
-		return
-	}
-
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) != 5 {
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.ParseInt(pathParts[4], 10, 64)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	if r.Method == http.MethodGet {
-		user, err := h.UserService.GetUserByID(id)
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		h.showDeleteConfirmation(w, "Пользователь", user.Username,
-			"/admin/users/delete/"+strconv.FormatInt(id, 10),
-			"/admin/users", user, false, 0)
-		return
-	}
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
-		return
-	}
-
-	err = h.UserService.DeleteUser(id)
-	if err != nil {
-		log.Printf("Ошибка удаления пользователя: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	http.Redirect(w, r, "/admin/users?success=Пользователь+удален", http.StatusFound)
 }
 
 func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request) {

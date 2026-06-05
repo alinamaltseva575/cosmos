@@ -46,7 +46,7 @@ func (h *Handler) AdminPlanetsHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) AdminNewPlanetHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -62,6 +62,9 @@ func (h *Handler) AdminNewPlanetHandler(w http.ResponseWriter, r *http.Request) 
 		Title       string
 		CurrentPage string
 		IsAdmin     bool
+		IsAuth      bool
+		Username    string
+		Role        string
 		Planet      models.Planet
 		Galaxies    []models.Galaxy
 		Error       string
@@ -71,6 +74,9 @@ func (h *Handler) AdminNewPlanetHandler(w http.ResponseWriter, r *http.Request) 
 		Title:       "Добавление планеты",
 		CurrentPage: "admin_planet_form",
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 		Planet:      models.Planet{},
 		Galaxies:    galaxies,
 	}
@@ -97,7 +103,7 @@ func (h *Handler) AdminNewPlanetHandler(w http.ResponseWriter, r *http.Request) 
 func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -131,6 +137,9 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 		Title       string
 		CurrentPage string
 		IsAdmin     bool
+		IsAuth      bool
+		Username    string
+		Role        string
 		Planet      models.Planet
 		Galaxies    []models.Galaxy
 		Error       string
@@ -141,6 +150,9 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 		Title:       "Редактирование планеты",
 		CurrentPage: "admin_planet_form",
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 		Planet:      *planet,
 		Galaxies:    galaxies,
 	}
@@ -155,7 +167,6 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 		} else {
 			data.Success = "Планета успешно обновлена!"
 			data.Planet = updatedPlanet
-			data.Planet.ID = id
 		}
 	}
 
@@ -165,7 +176,6 @@ func (h *Handler) AdminEditPlanetHandler(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Ошибка отображения страницы", http.StatusInternalServerError)
 	}
 }
-
 func (h *Handler) AdminDeletePlanetHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := h.requireAdminAuth(w, r)
 	if err != nil {

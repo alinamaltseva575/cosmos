@@ -20,62 +20,22 @@
     </div>
 </div>
 
-<div class="admin-actions">
-    <div class="action-card">
-        <h3>🌍 Мои планеты</h3>
-        <p>Добавление, редактирование и удаление своих планет</p>
-        <div class="action-buttons">
-            <a href="/my/planets" class="btn">Мои планеты</a>
-            <a href="/my/planets/new" class="btn btn-success"
-                >+ Добавить планету</a
-            >
-        </div>
-    </div>
-
-    <div class="action-card">
-        <h3>🌌 Мои галактики</h3>
-        <p>Добавление, редактирование и удаление своих галактик</p>
-        <div class="action-buttons">
-            <a href="/my/galaxies" class="btn">Мои галактики</a>
-            <a href="/my/galaxies/new" class="btn btn-success"
-                >+ Добавить галактику</a
-            >
-        </div>
-    </div>
-
-    <div class="action-card">
-        <h3>🌐 Публичные данные</h3>
-        <p>Просмотр всех планет и галактик</p>
-        <div class="action-buttons">
-            <a href="/planets" class="btn">Все планеты</a>
-            <a href="/galaxies" class="btn">Все галактики</a>
-        </div>
-    </div>
-</div>
-
 <div class="admin-info">
     <h3>Информация об аккаунте</h3>
     <p>Логин: <strong>{{.Username}}</strong></p>
-    <p>Роль: <span class="badge user-badge">Пользователь</span></p>
+    <p>Роль:
+        <span class="badge {{if eq .Role "admin"}}admin-badge{{else}}user-badge{{end}}">
+            {{if eq .Role "admin"}}👑 Администратор{{else}}👤 Пользователь{{end}}
+        </span>
+    </p>
 </div>
 
-<!-- Добавьте после блока admin-info -->
-<div class="admin-info" style="margin-top: 30px; border-left-color: #f44336">
-    <h3 style="color: #f44336">Удалить аккаунт</h3>
-    <p>Удаление аккаунта - это действие нельзя отменить.</p>
-    <div class="form-actions" style="margin-top: 15px">
-        <a
-            href="/profile/delete"
-            class="btn btn-danger"
-            onclick="
-                return confirm(
-                    'Вы уверены, что хотите удалить свой аккаунт? Все ваши данные будут потеряны!',
-                );
-            "
-        >
-            🗑️ Удалить мой аккаунт
-        </a>
-    </div>
+<!-- Опасная зона - показываем только для обычных пользователей -->
+{{if eq .Role "user"}}
+<div class="admin-info" style="margin-top: 30px; border-left: 4px solid #e53e3e;">
+    <h3 style="color: #e53e3e;">Удалить аккаунт</h3>
+    <p>Удаление аккаунта - это действие нельзя отменить. Все ваши данные будут потеряны.</p>
+    <a href="/profile/delete" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить свой аккаунт? Это действие нельзя отменить!');">🗑️ Удалить мой аккаунт</a>
 </div>
-
+{{end}}
 {{end}}

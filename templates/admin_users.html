@@ -1,4 +1,4 @@
-{{define "admin_users"}}  <!-- ИЗМЕНИТЬ НАЗВАНИЕ ШАБЛОНА -->
+{{define "admin_users"}}
 <div class="admin-header">
     <h1>👥 Управление пользователями</h1>
     <p>Создание, редактирование и удаление пользователей</p>
@@ -35,15 +35,16 @@
                 </td>
                 <td>{{.CreatedAt.Format "02.01.2006"}}</td>
                 <td class="actions">
-                    <a href="/admin/users/edit/{{.ID}}" class="btn-small btn-edit">✏️</a>
-                    <a href="/admin/users/view/{{.ID}}" class="btn-small btn-view">👁️</a>
-
-                    {{if ne .ID 1}}
-                    <a href="/admin/users/delete/{{.ID}}" class="btn-small btn-delete">🗑️</a>
+                    {{if eq .Role "admin"}}
+                        <!-- Админ: может редактировать СЕБЯ, но не может удалить себя -->
+                        <a href="/admin/users/edit/{{.ID}}" class="btn-small btn-edit">✏️</a>
+                        <a href="/admin/users/view/{{.ID}}" class="btn-small btn-view">👁️</a>
+                        <span style="color:#ff9800; font-size:0.8rem; margin-left:5px;">⭐ Главный</span>
                     {{else}}
-                    <span class="form-text" style="color: #ff9800; font-size: 0.8rem; margin-left: 5px;">
-                        ⚠️ Главный
-                    </span>
+                        <!-- Обычные пользователи: все кнопки -->
+                        <a href="/admin/users/edit/{{.ID}}" class="btn-small btn-edit">✏️</a>
+                        <a href="/admin/users/view/{{.ID}}" class="btn-small btn-view">👁️</a>
+                        <a href="/admin/users/delete/{{.ID}}" class="btn-small btn-delete" onclick="return confirm('Удалить пользователя {{.Username}}?')">🗑️</a>
                     {{end}}
                 </td>
             </tr>
@@ -60,5 +61,6 @@
 
 <div class="admin-info">
     <h3>Всего пользователей: {{len .Users}}</h3>
+    <p class="small">⭐ Администратор может редактировать свой профиль, но не может удалить себя.</p>
 </div>
 {{end}}
