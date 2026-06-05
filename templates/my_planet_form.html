@@ -1,0 +1,98 @@
+{{define "my_planet_form"}}
+<div class="admin-header">
+    <h1>{{if .Planet.ID}}✏️ Редактирование планеты{{else}}➕ Добавление планеты{{end}}</h1>
+    <p>{{if .Planet.ID}}Измените данные планеты{{else}}Заполните форму для добавления новой планеты{{end}}</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="/my/planets" class="btn btn-secondary">← Назад к моим планетам</a>
+</div>
+
+{{if .Error}}
+<div class="error-message"><strong>Ошибка:</strong> {{.Error}}</div>
+{{end}}
+
+{{if .Success}}
+<div class="success-message">✅ {{.Success}}</div>
+{{end}}
+
+<form method="POST" action="{{if .Planet.ID}}/my/planets/edit/{{.Planet.ID}}{{else}}/my/planets/new{{end}}" class="admin-form">
+
+    <div class="form-group">
+        <label for="name">Название планеты *</label>
+        <input type="text" id="name" name="name" required value="{{.Planet.Name}}" placeholder="Например: Земля">
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="type">Тип планеты *</label>
+            <select id="type" name="type" required>
+                <option value="">Выберите тип</option>
+                <option value="землеподобная" {{if eq .Planet.Type "землеподобная"}}selected{{end}}>Землеподобная</option>
+                <option value="газовый гигант" {{if eq .Planet.Type "газовый гигант"}}selected{{end}}>Газовый гигант</option>
+                <option value="ледяной гигант" {{if eq .Planet.Type "ледяной гигант"}}selected{{end}}>Ледяной гигант</option>
+                <option value="карликовая" {{if eq .Planet.Type "карликовая"}}selected{{end}}>Карликовая</option>
+                <option value="экзопланета" {{if eq .Planet.Type "экзопланета"}}selected{{end}}>Экзопланета</option>
+                <option value="суперземля" {{if eq .Planet.Type "суперземля"}}selected{{end}}>Суперземля</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="galaxy_id">Галактика</label>
+            <select id="galaxy_id" name="galaxy_id">
+                <option value="">Не указана</option>
+                {{range .Galaxies}}
+                <option value="{{.ID}}" {{if and $.Planet.GalaxyID (eq .ID (derefInt $.Planet.GalaxyID))}}selected{{end}}>
+                    {{.Name}}
+                </option>
+                {{end}}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="diameter_km">Диаметр (км) *</label>
+            <input type="number" id="diameter_km" name="diameter_km" step="0.01" required value="{{.Planet.DiameterKm}}" placeholder="12742">
+        </div>
+
+        <div class="form-group">
+            <label for="mass_kg">Масса (кг)</label>
+            <input type="number" id="mass_kg" name="mass_kg" step="0.01" value="{{.Planet.MassKg}}" placeholder="5.972e24">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="orbital_period_days">Орбитальный период (дней)</label>
+            <input type="number" id="orbital_period_days" name="orbital_period_days" step="0.01" value="{{.Planet.OrbitalPeriodDays}}" placeholder="365.25">
+        </div>
+
+        <div class="form-group">
+            <label for="discovered_year">Год открытия</label>
+            <input type="number" id="discovered_year" name="discovered_year" value="{{if .Planet.DiscoveredYear}}{{derefInt .Planet.DiscoveredYear}}{{end}}" placeholder="2023">
+        </div>
+    </div>
+
+    <div class="form-checkboxes">
+        <label class="checkbox-label">
+            <input type="checkbox" name="has_life" value="true" {{if .Planet.HasLife}}checked{{end}}>
+            <span>🌱 На планете есть жизнь</span>
+        </label>
+        <label class="checkbox-label">
+            <input type="checkbox" name="is_habitable" value="true" {{if .Planet.IsHabitable}}checked{{end}}>
+            <span>🏠 Планета обитаема для человека</span>
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Описание *</label>
+        <textarea id="description" name="description" rows="6" required placeholder="Подробное описание планеты...">{{.Planet.Description}}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{if .Planet.ID}}💾 Сохранить изменения{{else}}➕ Создать планету{{end}}</button>
+        <a href="/my/planets" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+{{end}}

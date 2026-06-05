@@ -1,0 +1,68 @@
+{{define "my_galaxy_form"}}
+<div class="admin-header">
+    <h1>{{if .Galaxy.ID}}✏️ Редактирование галактики{{else}}➕ Добавление галактики{{end}}</h1>
+    <p>{{if .Galaxy.ID}}Измените данные галактики{{else}}Заполните форму для добавления новой галактики{{end}}</p>
+</div>
+
+<div class="admin-actions-bar">
+    <a href="/my/galaxies" class="btn btn-secondary">← Назад к моим галактикам</a>
+</div>
+
+{{if .Error}}
+<div class="error-message"><strong>Ошибка:</strong> {{.Error}}</div>
+{{end}}
+
+<form method="POST" action="{{if .Galaxy.ID}}/my/galaxies/edit/{{.Galaxy.ID}}{{else}}/my/galaxies/new{{end}}" class="admin-form">
+
+    <div class="form-group">
+        <label for="name">Название галактики *</label>
+        <input type="text" id="name" name="name" required value="{{.Galaxy.Name}}" placeholder="Например: Млечный Путь">
+    </div>
+
+    <div class="form-group">
+        <label for="type">Тип галактики *</label>
+        <select id="type" name="type" required>
+            <option value="">Выберите тип</option>
+            <option value="спиральная" {{if eq .Galaxy.Type "спиральная"}}selected{{end}}>Спиральная</option>
+            <option value="эллиптическая" {{if eq .Galaxy.Type "эллиптическая"}}selected{{end}}>Эллиптическая</option>
+            <option value="неправильная" {{if eq .Galaxy.Type "неправильная"}}selected{{end}}>Неправильная</option>
+            <option value="линзовидная" {{if eq .Galaxy.Type "линзовидная"}}selected{{end}}>Линзовидная</option>
+            <option value="карликовая" {{if eq .Galaxy.Type "карликовая"}}selected{{end}}>Карликовая</option>
+        </select>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="diameter_ly">Диаметр (световых лет)</label>
+            <input type="number" id="diameter_ly" name="diameter_ly" step="0.01" value="{{if .Galaxy.DiameterLy}}{{.Galaxy.DiameterLy}}{{end}}" placeholder="100000">
+        </div>
+
+        <div class="form-group">
+            <label for="mass_suns">Масса (в массах Солнца)</label>
+            <input type="number" id="mass_suns" name="mass_suns" step="0.01" value="{{if .Galaxy.MassSuns}}{{.Galaxy.MassSuns}}{{end}}" placeholder="1500000000000">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="distance_from_earth_ly">Расстояние от Земли (св. лет)</label>
+            <input type="number" id="distance_from_earth_ly" name="distance_from_earth_ly" step="0.01" value="{{if .Galaxy.DistanceFromEarthLy}}{{.Galaxy.DistanceFromEarthLy}}{{end}}" placeholder="0">
+        </div>
+
+        <div class="form-group">
+            <label for="discovered_year">Год открытия</label>
+            <input type="number" id="discovered_year" name="discovered_year" value="{{if .Galaxy.DiscoveredYear}}{{.Galaxy.DiscoveredYear}}{{end}}" placeholder="964">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Описание *</label>
+        <textarea id="description" name="description" rows="5" required placeholder="Подробное описание галактики...">{{.Galaxy.Description}}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{if .Galaxy.ID}}💾 Сохранить изменения{{else}}➕ Создать галактику{{end}}</button>
+        <a href="/my/galaxies" class="btn btn-secondary">Отмена</a>
+    </div>
+</form>
+{{end}}

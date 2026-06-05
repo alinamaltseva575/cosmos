@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"errors"
 	"html/template"
 	"log"
 	"net/http"
 
+	"cosmos/internal/auth"
 	"cosmos/internal/service"
 )
 
@@ -31,6 +33,23 @@ func NewHandler(
 
 func (h *Handler) setEncoding(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+}
+
+// requireAuth - проверка авторизации (для пользователей)
+func (h *Handler) requireAuth(w http.ResponseWriter, r *http.Request) (*auth.Claims, error) {
+	token := auth.GetTokenFromRequest(r)
+	if token == "" {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return nil, errors.New("не авторизован")
+	}
+
+	claims, err := auth.ValidateToken(token)
+	if err != nil {
+		http.Redirect(w, r, "/login", http.StatusFound)
+		return nil, err
+	}
+
+	return claims, nil
 }
 
 // showDeleteConfirmation - общая функция для подтверждения удаления

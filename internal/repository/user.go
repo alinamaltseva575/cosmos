@@ -9,11 +9,12 @@ import (
 
 type UserRepository interface {
 	GetAll() ([]models.User, error)
-	GetByID(id int64) (*models.User, error) // int → int64
+	GetByID(id int64) (*models.User, error)
 	GetByUsername(username string) (*models.User, error)
+	GetByEmail(email string) (*models.User, error)
 	Create(user *models.User) error
 	Update(user *models.User) error
-	Delete(id int64) error // int → int64
+	Delete(id int64) error
 	Count() (int, error)
 	CountAdmins() (int, error)
 }
@@ -50,7 +51,7 @@ func (r *userRepository) GetAll() ([]models.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) GetByID(id int64) (*models.User, error) { // int64
+func (r *userRepository) GetByID(id int64) (*models.User, error) {
 	var user models.User
 	err := r.db.QueryRow(`
 		SELECT id, username, email, role, created_at
@@ -75,6 +76,24 @@ func (r *userRepository) GetByUsername(username string) (*models.User, error) {
 		FROM users
 		WHERE username = $1
 	`, username).Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("пользователь не найден")
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *userRepository) GetByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.db.QueryRow(`
+		SELECT id, username, email, password_hash, role, created_at
+		FROM users
+		WHERE email = $1
+	`, email).Scan(&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -123,7 +142,7 @@ func (r *userRepository) Update(user *models.User) error {
 	return nil
 }
 
-func (r *userRepository) Delete(id int64) error { // int64
+func (r *userRepository) Delete(id int64) error {
 	result, err := r.db.Exec("DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		return err

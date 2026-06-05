@@ -21,7 +21,14 @@ func (s *GalaxyService) GetAllGalaxies() ([]models.Galaxy, error) {
 	return s.galaxyRepo.GetAll()
 }
 
-func (s *GalaxyService) GetGalaxyByID(id int64) (*models.Galaxy, error) { // int64
+func (s *GalaxyService) GetUserGalaxies(userID int64) ([]models.Galaxy, error) {
+	if userID <= 0 {
+		return nil, errors.New("неверный ID пользователя")
+	}
+	return s.galaxyRepo.GetUserGalaxies(userID)
+}
+
+func (s *GalaxyService) GetGalaxyByID(id int64) (*models.Galaxy, error) {
 	if id <= 0 {
 		return nil, errors.New("неверный ID галактики")
 	}
@@ -59,7 +66,7 @@ func (s *GalaxyService) UpdateGalaxy(galaxy *models.Galaxy) error {
 	return s.galaxyRepo.Update(galaxy)
 }
 
-func (s *GalaxyService) DeleteGalaxy(id int64) error { // int64
+func (s *GalaxyService) DeleteGalaxy(id int64) error {
 	if id <= 0 {
 		return errors.New("неверный ID галактики")
 	}
@@ -79,6 +86,6 @@ func (s *GalaxyService) GetGalaxyCount() (int, error) {
 	return s.galaxyRepo.Count()
 }
 
-func (s *GalaxyService) GetPlanetCountInGalaxy(id int64) (int, error) { // int64
+func (s *GalaxyService) GetPlanetCountInGalaxy(id int64) (int, error) {
 	return s.galaxyRepo.GetPlanetCount(id)
 }

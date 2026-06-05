@@ -22,8 +22,8 @@
     <div class="stat-card admin-stat">
         <div class="stat-icon">👥</div>
         <div class="stat-number">{{.UserCount}}</div>
-        <div class="stat-label">Администраторов</div>
-        <a href="/admin/users" class="btn-small">Просмотр</a>
+        <div class="stat-label">Пользователей</div>
+        <a href="/admin/users" class="btn-small">Управление</a>
     </div>
 </div>
 
@@ -51,10 +51,13 @@
     </div>
 
     <div class="action-card">
-        <h3>⚙️ Настройки системы</h3>
-        <p>Управление пользователями</p>
+        <h3>👥 Управление пользователями</h3>
+        <p>Создание, редактирование и удаление пользователей</p>
         <div class="action-buttons">
-            <a href="/admin/users" class="btn">Пользователи</a>
+            <a href="/admin/users" class="btn">Список пользователей</a>
+            <a href="/admin/users/new" class="btn btn-success"
+                >+ Добавить пользователя</a
+            >
         </div>
     </div>
 </div>

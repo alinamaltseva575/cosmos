@@ -23,7 +23,14 @@ func (s *PlanetService) GetAllPlanets() ([]models.Planet, error) {
 	return s.planetRepo.GetAll()
 }
 
-func (s *PlanetService) GetPlanetByID(id int64) (*models.Planet, error) { // int64
+func (s *PlanetService) GetUserPlanets(userID int64) ([]models.Planet, error) {
+	if userID <= 0 {
+		return nil, errors.New("неверный ID пользователя")
+	}
+	return s.planetRepo.GetUserPlanets(userID)
+}
+
+func (s *PlanetService) GetPlanetByID(id int64) (*models.Planet, error) {
 	if id <= 0 {
 		return nil, errors.New("неверный ID планеты")
 	}
@@ -64,7 +71,7 @@ func (s *PlanetService) UpdatePlanet(planet *models.Planet) error {
 	return s.planetRepo.Update(planet)
 }
 
-func (s *PlanetService) DeletePlanet(id int64) error { // int64
+func (s *PlanetService) DeletePlanet(id int64) error {
 	if id <= 0 {
 		return errors.New("неверный ID планеты")
 	}

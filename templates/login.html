@@ -1,0 +1,52 @@
+{{define "login"}}
+<div class="login-container">
+    <div class="login-box">
+        <h1>🔐 Вход в систему</h1>
+
+        {{if .Registered}}
+        <div class="success-message">
+            ✅ Регистрация успешна! Войдите в систему.
+        </div>
+        {{end}} {{if .Error}}
+        <div class="error-message"><strong>Ошибка:</strong> {{.Error}}</div>
+        {{end}}
+
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Логин:</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    placeholder="Введите логин"
+                    value="{{.LoginName}}"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Введите пароль"
+                />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                Войти
+            </button>
+        </form>
+
+        <div class="login-info">
+            <p>Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+            <hr />
+            <h4>Тестовые данные:</h4>
+            <p><strong>Админ:</strong> admin / admin123</p>
+            <p><strong>Пользователь:</strong> зарегистрируйтесь сами!</p>
+        </div>
+    </div>
+</div>
+{{end}}

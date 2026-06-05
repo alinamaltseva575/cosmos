@@ -1,0 +1,71 @@
+{{define "profile_delete_confirm"}}
+<div class="login-container">
+    <div class="login-box" style="max-width: 500px">
+        <h1>🗑️ Удаление аккаунта</h1>
+
+        <div
+            class="warning-box"
+            style="
+                background: linear-gradient(
+                    135deg,
+                    rgba(244, 67, 54, 0.1),
+                    rgba(229, 57, 53, 0.2)
+                );
+                border: 2px solid #f44336;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 30px;
+                text-align: center;
+            "
+        >
+            <h3 style="color: #f44336">⚠️ Внимание!</h3>
+            <p>Вы уверены, что хотите удалить свой аккаунт?</p>
+            <p style="color: #ff8a80">
+                Это действие <strong>нельзя отменить</strong>.
+            </p>
+            <p style="font-size: 0.9rem; margin-top: 15px">{{.Warning}}</p>
+        </div>
+
+        <div class="object-info">
+            <h3>Информация об аккаунте:</h3>
+            <div
+                class="info-card"
+                style="
+                    background-color: #1a1a2e;
+                    border: 1px solid #2a2a3e;
+                    border-radius: 10px;
+                    padding: 20px;
+                "
+            >
+                <p><strong>Логин:</strong> {{.Username}}</p>
+                <p><strong>Роль:</strong> {{.Role}}</p>
+            </div>
+        </div>
+
+        <div
+            class="form-actions"
+            style="
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                margin-top: 30px;
+            "
+        >
+            <form
+                method="POST"
+                action="/profile/delete"
+                style="display: inline"
+            >
+                <button
+                    type="submit"
+                    class="btn btn-danger"
+                    style="padding: 12px 30px; font-size: 1.1rem"
+                >
+                    🗑️ Да, удалить аккаунт
+                </button>
+            </form>
+            <a href="/dashboard" class="btn btn-secondary">❌ Отмена</a>
+        </div>
+    </div>
+</div>
+{{end}}

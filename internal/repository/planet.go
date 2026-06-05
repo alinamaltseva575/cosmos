@@ -9,10 +9,11 @@ import (
 
 type PlanetRepository interface {
 	GetAll() ([]models.Planet, error)
-	GetByID(id int64) (*models.Planet, error) // int → int64
+	GetByID(id int64) (*models.Planet, error)
+	GetUserPlanets(userID int64) ([]models.Planet, error)
 	Create(planet *models.Planet) error
 	Update(planet *models.Planet) error
-	Delete(id int64) error // int → int64
+	Delete(id int64) error
 	Count() (int, error)
 	GetGalaxies() ([]models.Galaxy, error)
 }
@@ -29,7 +30,8 @@ func (r *planetRepository) GetAll() ([]models.Planet, error) {
 	query := `
 		SELECT p.id, p.name, p.type, p.diameter_km, p.mass_kg,
 		       p.orbital_period_days, p.has_life, p.is_habitable,
-		       p.description, COALESCE(g.name, 'Не указана') as galaxy_name
+		       p.description, COALESCE(g.name, 'Не указана') as galaxy_name,
+		       p.created_by
 		FROM planets p
 		LEFT JOIN galaxies g ON p.galaxy_id = g.id
 		ORDER BY p.name
@@ -44,13 +46,17 @@ func (r *planetRepository) GetAll() ([]models.Planet, error) {
 	var planets []models.Planet
 	for rows.Next() {
 		var p models.Planet
+		var createdBy sql.NullInt64
 		err := rows.Scan(
 			&p.ID, &p.Name, &p.Type, &p.DiameterKm, &p.MassKg,
 			&p.OrbitalPeriodDays, &p.HasLife, &p.IsHabitable,
-			&p.Description, &p.GalaxyName,
+			&p.Description, &p.GalaxyName, &createdBy,
 		)
 		if err != nil {
 			return nil, err
+		}
+		if createdBy.Valid {
+			p.CreatedBy = &createdBy.Int64
 		}
 		planets = append(planets, p)
 	}
@@ -58,17 +64,57 @@ func (r *planetRepository) GetAll() ([]models.Planet, error) {
 	return planets, nil
 }
 
-func (r *planetRepository) GetByID(id int64) (*models.Planet, error) { // int64
+func (r *planetRepository) GetUserPlanets(userID int64) ([]models.Planet, error) {
+	query := `
+		SELECT p.id, p.name, p.type, p.diameter_km, p.mass_kg,
+		       p.orbital_period_days, p.has_life, p.is_habitable,
+		       p.description, COALESCE(g.name, 'Не указана') as galaxy_name,
+		       p.created_by
+		FROM planets p
+		LEFT JOIN galaxies g ON p.galaxy_id = g.id
+		WHERE p.created_by = $1
+		ORDER BY p.created_at DESC
+	`
+
+	rows, err := r.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var planets []models.Planet
+	for rows.Next() {
+		var p models.Planet
+		var createdBy sql.NullInt64
+		err := rows.Scan(
+			&p.ID, &p.Name, &p.Type, &p.DiameterKm, &p.MassKg,
+			&p.OrbitalPeriodDays, &p.HasLife, &p.IsHabitable,
+			&p.Description, &p.GalaxyName, &createdBy,
+		)
+		if err != nil {
+			return nil, err
+		}
+		if createdBy.Valid {
+			p.CreatedBy = &createdBy.Int64
+		}
+		planets = append(planets, p)
+	}
+
+	return planets, nil
+}
+
+func (r *planetRepository) GetByID(id int64) (*models.Planet, error) {
 	var planet models.Planet
 	var discoveredYear sql.NullInt64
 	var galaxyID sql.NullInt64
 	var massKg sql.NullFloat64
 	var orbitalPeriodDays sql.NullFloat64
+	var createdBy sql.NullInt64
 
 	query := `
 		SELECT id, name, type, description, diameter_km, mass_kg,
 		       orbital_period_days, discovered_year, galaxy_id,
-		       has_life, is_habitable, created_at
+		       has_life, is_habitable, created_at, created_by
 		FROM planets
 		WHERE id = $1
 	`
@@ -77,7 +123,7 @@ func (r *planetRepository) GetByID(id int64) (*models.Planet, error) { // int64
 		&planet.ID, &planet.Name, &planet.Type, &planet.Description,
 		&planet.DiameterKm, &massKg, &orbitalPeriodDays,
 		&discoveredYear, &galaxyID, &planet.HasLife, &planet.IsHabitable,
-		&planet.CreatedAt,
+		&planet.CreatedAt, &createdBy,
 	)
 
 	if err != nil {
@@ -101,6 +147,9 @@ func (r *planetRepository) GetByID(id int64) (*models.Planet, error) { // int64
 	if orbitalPeriodDays.Valid {
 		planet.OrbitalPeriodDays = orbitalPeriodDays.Float64
 	}
+	if createdBy.Valid {
+		planet.CreatedBy = &createdBy.Int64
+	}
 
 	return &planet, nil
 }
@@ -109,8 +158,8 @@ func (r *planetRepository) Create(planet *models.Planet) error {
 	query := `
 		INSERT INTO planets (name, type, description, diameter_km, mass_kg,
 		                    orbital_period_days, discovered_year, galaxy_id,
-		                    has_life, is_habitable)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		                    has_life, is_habitable, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id, created_at
 	`
 
@@ -128,11 +177,18 @@ func (r *planetRepository) Create(planet *models.Planet) error {
 		discoveredYear = nil
 	}
 
+	var createdBy any
+	if planet.CreatedBy != nil && *planet.CreatedBy > 0 {
+		createdBy = *planet.CreatedBy
+	} else {
+		createdBy = nil
+	}
+
 	return r.db.QueryRow(query,
 		planet.Name, planet.Type, planet.Description,
 		planet.DiameterKm, planet.MassKg, planet.OrbitalPeriodDays,
 		discoveredYear, galaxyID,
-		planet.HasLife, planet.IsHabitable,
+		planet.HasLife, planet.IsHabitable, createdBy,
 	).Scan(&planet.ID, &planet.CreatedAt)
 }
 
@@ -180,7 +236,7 @@ func (r *planetRepository) Update(planet *models.Planet) error {
 	return nil
 }
 
-func (r *planetRepository) Delete(id int64) error { // int64
+func (r *planetRepository) Delete(id int64) error {
 	result, err := r.db.Exec("DELETE FROM planets WHERE id = $1", id)
 	if err != nil {
 		return err

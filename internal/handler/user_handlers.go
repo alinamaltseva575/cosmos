@@ -12,7 +12,7 @@ import (
 func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -29,6 +29,9 @@ func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 		CurrentPage: "admin_users",
 		Users:       users,
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 	}
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)
@@ -41,7 +44,7 @@ func (h *Handler) AdminUsersHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -50,14 +53,21 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 		Title       string
 		CurrentPage string
 		IsAdmin     bool
+		IsAuth      bool
+		Username    string
+		Role        string
 		User        models.User
 		Error       string
+		Success     string // ДОБАВЛЕНО!
 	}
 
 	data := FormData{
 		Title:       "Создание пользователя",
 		CurrentPage: "admin_user_form",
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 		User:        models.User{},
 	}
 
@@ -74,7 +84,7 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 			data.User.Email = email
 			data.User.Role = role
 		} else {
-			http.Redirect(w, r, "/admin/users", http.StatusFound)
+			http.Redirect(w, r, "/admin/users?success=Пользователь+создан", http.StatusFound)
 			return
 		}
 	}
@@ -89,7 +99,7 @@ func (h *Handler) AdminNewUserHandler(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
@@ -100,7 +110,7 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(pathParts[4], 10, 64) // Atoi → ParseInt
+	id, err := strconv.ParseInt(pathParts[4], 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -116,6 +126,9 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		Title       string
 		CurrentPage string
 		IsAdmin     bool
+		IsAuth      bool
+		Username    string
+		Role        string
 		User        models.User
 		Error       string
 		Success     string
@@ -125,6 +138,9 @@ func (h *Handler) AdminEditUserHandler(w http.ResponseWriter, r *http.Request) {
 		Title:       "Редактирование пользователя: " + user.Username,
 		CurrentPage: "admin_user_form",
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 		User:        *user,
 	}
 
@@ -167,7 +183,7 @@ func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	id, err := strconv.ParseInt(pathParts[4], 10, 64) // Atoi → ParseInt
+	id, err := strconv.ParseInt(pathParts[4], 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -203,18 +219,18 @@ func (h *Handler) AdminDeleteUserHandler(w http.ResponseWriter, r *http.Request)
 func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request) {
 	h.setEncoding(w)
 
-	_, err := h.requireAdminAuth(w, r)
+	claims, err := h.requireAdminAuth(w, r)
 	if err != nil {
 		return
 	}
 
 	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) != 4 {
+	if len(pathParts) != 5 {
 		http.NotFound(w, r)
 		return
 	}
 
-	id, err := strconv.ParseInt(pathParts[2], 10, 64) // Atoi → ParseInt
+	id, err := strconv.ParseInt(pathParts[4], 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -228,9 +244,12 @@ func (h *Handler) AdminUserDetailHandler(w http.ResponseWriter, r *http.Request)
 
 	data := models.PageData{
 		Title:       "Просмотр пользователя: " + user.Username,
-		CurrentPage: "admin_user_form",
+		CurrentPage: "admin_user_detail",
 		User:        user,
 		IsAdmin:     true,
+		IsAuth:      true,
+		Username:    claims.Username,
+		Role:        claims.Role,
 	}
 
 	err = h.Tmpl.ExecuteTemplate(w, "base.html", data)

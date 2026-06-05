@@ -1,0 +1,72 @@
+{{define "my_planets"}}
+<div class="admin-header">
+    <h1>🌍 Мои планеты</h1>
+    <p>Управление созданными вами планетами</p>
+</div>
+
+{{if .Success}}
+<div class="success-message">✅ {{.Success}}</div>
+{{end}}
+
+<div class="admin-actions-bar">
+    <a href="/dashboard" class="btn btn-secondary">← Назад в кабинет</a>
+    <a href="/my/planets/new" class="btn btn-success">+ Добавить планету</a>
+</div>
+
+{{if .Planets}}
+<div class="admin-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Тип</th>
+                <th>Диаметр (км)</th>
+                <th>Есть жизнь</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Planets}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Name}}</td>
+                <td>{{.Type}}</td>
+                <td>{{.DiameterKm}}</td>
+                <td>{{if .HasLife}}✅ Да{{else}}❌ Нет{{end}}</td>
+                <td class="actions">
+                    <a
+                        href="/my/planets/delete/{{.ID}}"
+                        class="btn-small btn-delete"
+                        >🗑️</a
+                    >
+                    <a
+                        href="/my/planets/edit/{{.ID}}"
+                        class="btn-small btn-edit"
+                        >✏️</a
+                    >
+                    <a
+                        href="/planets/{{.ID}}"
+                        class="btn-small btn-view"
+                        target="_blank"
+                        >👁️</a
+                    >
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="empty-state">
+    <p>У вас пока нет планет</p>
+    <a href="/my/planets/new" class="btn btn-success"
+        >Добавить первую планету</a
+    >
+</div>
+{{end}}
+
+<div class="admin-info">
+    <h3>Всего ваших планет: {{len .Planets}}</h3>
+</div>
+{{end}}

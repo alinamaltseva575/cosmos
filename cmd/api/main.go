@@ -40,7 +40,7 @@ func main() {
 	galaxyService := service.NewGalaxyService(galaxyRepo)
 	userService := service.NewUserService(userRepo)
 
-	// ========== ФУНКЦИИ ДЛЯ ШАБЛОНОВ ==========
+	// Функции для шаблонов
 	funcMap := template.FuncMap{
 		"formatNumber": func(num float64) string {
 			if num == 0 {
@@ -97,23 +97,9 @@ func main() {
 			}
 			return 0
 		},
-		"hasValue": func(p interface{}) bool {
-			if p == nil {
-				return false
-			}
-			switch v := p.(type) {
-			case *int:
-				return v != nil && *v != 0
-			case *float64:
-				return v != nil && *v != 0
-			case *string:
-				return v != nil && *v != ""
-			}
-			return false
-		},
 	}
 
-	// Загружаем шаблоны с функциями
+	// Загружаем шаблоны
 	tmpl := template.New("").Funcs(funcMap)
 	tmpl, err = tmpl.ParseGlob("templates/*.html")
 	if err != nil {
@@ -123,33 +109,45 @@ func main() {
 	// Создаем хендлер
 	h := handler.NewHandler(tmpl, planetService, galaxyService, userService)
 
-	// Настраиваем маршруты
+	// ========== ПУБЛИЧНЫЕ МАРШРУТЫ ==========
 	http.HandleFunc("/", h.HomeHandler)
 	http.HandleFunc("/planets", h.PlanetsHandler)
 	http.HandleFunc("/planets/", h.PlanetDetailHandler)
 	http.HandleFunc("/galaxies", h.GalaxiesHandler)
 	http.HandleFunc("/galaxies/", h.GalaxyDetailHandler)
 
-	http.HandleFunc("/admin/login", h.AdminLoginHandler)
-	http.HandleFunc("/admin/logout", h.AdminLogoutHandler)
-	http.HandleFunc("/admin", h.AdminDashboardHandler)
+	// ========== АВТОРИЗАЦИЯ ==========
+	http.HandleFunc("/register", h.RegisterHandler)
+	http.HandleFunc("/login", h.LoginHandler)
+	http.HandleFunc("/logout", h.LogoutHandler)
 
+	// ========== АДМИН-ПАНЕЛЬ ==========
+	http.HandleFunc("/admin", h.AdminDashboardHandler)
 	http.HandleFunc("/admin/planets", h.AdminPlanetsHandler)
 	http.HandleFunc("/admin/planets/new", h.AdminNewPlanetHandler)
 	http.HandleFunc("/admin/planets/delete/", h.AdminDeletePlanetHandler)
 	http.HandleFunc("/admin/planets/edit/", h.AdminEditPlanetHandler)
-
 	http.HandleFunc("/admin/galaxies", h.AdminGalaxiesHandler)
 	http.HandleFunc("/admin/galaxies/new", h.AdminNewGalaxyHandler)
 	http.HandleFunc("/admin/galaxies/delete/", h.AdminDeleteGalaxyHandler)
 	http.HandleFunc("/admin/galaxies/edit/", h.AdminEditGalaxyHandler)
-
 	http.HandleFunc("/admin/users", h.AdminUsersHandler)
 	http.HandleFunc("/admin/users/new", h.AdminNewUserHandler)
 	http.HandleFunc("/admin/users/delete/", h.AdminDeleteUserHandler)
 	http.HandleFunc("/admin/users/edit/", h.AdminEditUserHandler)
 	http.HandleFunc("/admin/users/view/", h.AdminUserDetailHandler)
 
+	// ========== ЛИЧНЫЙ КАБИНЕТ ПОЛЬЗОВАТЕЛЯ ==========
+	http.HandleFunc("/dashboard", h.DashboardHandler)
+	http.HandleFunc("/my/planets", h.MyPlanetsHandler)
+	http.HandleFunc("/my/planets/new", h.MyPlanetNewHandler)
+	http.HandleFunc("/my/planets/delete/", h.MyPlanetDeleteHandler)
+	http.HandleFunc("/my/planets/edit/", h.MyPlanetEditHandler)
+	http.HandleFunc("/my/galaxies", h.MyGalaxiesHandler)
+	http.HandleFunc("/my/galaxies/new", h.MyGalaxyNewHandler)
+	http.HandleFunc("/my/galaxies/delete/", h.MyGalaxyDeleteHandler)
+	http.HandleFunc("/my/galaxies/edit/", h.MyGalaxyEditHandler)
+	http.HandleFunc("/profile/delete", h.ProfileDeleteHandler)
 	// Статические файлы
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))

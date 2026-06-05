@@ -1,0 +1,81 @@
+{{define "dashboard"}}
+<div class="admin-header">
+    <h1>📁 Личный кабинет</h1>
+    <p>Добро пожаловать, {{.Username}}!</p>
+</div>
+
+<div class="admin-stats">
+    <div class="stat-card admin-stat">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-number">{{len .Planets}}</div>
+        <div class="stat-label">Моих планет</div>
+        <a href="/my/planets" class="btn-small">Управление</a>
+    </div>
+
+    <div class="stat-card admin-stat">
+        <div class="stat-icon">🌌</div>
+        <div class="stat-number">{{len .Galaxies}}</div>
+        <div class="stat-label">Моих галактик</div>
+        <a href="/my/galaxies" class="btn-small">Управление</a>
+    </div>
+</div>
+
+<div class="admin-actions">
+    <div class="action-card">
+        <h3>🌍 Мои планеты</h3>
+        <p>Добавление, редактирование и удаление своих планет</p>
+        <div class="action-buttons">
+            <a href="/my/planets" class="btn">Мои планеты</a>
+            <a href="/my/planets/new" class="btn btn-success"
+                >+ Добавить планету</a
+            >
+        </div>
+    </div>
+
+    <div class="action-card">
+        <h3>🌌 Мои галактики</h3>
+        <p>Добавление, редактирование и удаление своих галактик</p>
+        <div class="action-buttons">
+            <a href="/my/galaxies" class="btn">Мои галактики</a>
+            <a href="/my/galaxies/new" class="btn btn-success"
+                >+ Добавить галактику</a
+            >
+        </div>
+    </div>
+
+    <div class="action-card">
+        <h3>🌐 Публичные данные</h3>
+        <p>Просмотр всех планет и галактик</p>
+        <div class="action-buttons">
+            <a href="/planets" class="btn">Все планеты</a>
+            <a href="/galaxies" class="btn">Все галактики</a>
+        </div>
+    </div>
+</div>
+
+<div class="admin-info">
+    <h3>Информация об аккаунте</h3>
+    <p>Логин: <strong>{{.Username}}</strong></p>
+    <p>Роль: <span class="badge user-badge">Пользователь</span></p>
+</div>
+
+<!-- Добавьте после блока admin-info -->
+<div class="admin-info" style="margin-top: 30px; border-left-color: #f44336">
+    <h3 style="color: #f44336">Удалить аккаунт</h3>
+    <p>Удаление аккаунта - это действие нельзя отменить.</p>
+    <div class="form-actions" style="margin-top: 15px">
+        <a
+            href="/profile/delete"
+            class="btn btn-danger"
+            onclick="
+                return confirm(
+                    'Вы уверены, что хотите удалить свой аккаунт? Все ваши данные будут потеряны!',
+                );
+            "
+        >
+            🗑️ Удалить мой аккаунт
+        </a>
+    </div>
+</div>
+
+{{end}}

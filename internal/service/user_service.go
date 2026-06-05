@@ -22,7 +22,7 @@ func (s *UserService) GetAllUsers() ([]models.User, error) {
 	return s.userRepo.GetAll()
 }
 
-func (s *UserService) GetUserByID(id int64) (*models.User, error) { // int64
+func (s *UserService) GetUserByID(id int64) (*models.User, error) {
 	if id <= 0 {
 		return nil, errors.New("неверный ID пользователя")
 	}
@@ -53,6 +53,12 @@ func (s *UserService) CreateUser(username, email, password, role string) (*model
 		return nil, errors.New("роль должна быть 'admin' или 'user'")
 	}
 
+	// Проверяем, не занят ли email
+	existingUser, _ := s.userRepo.GetByEmail(email)
+	if existingUser != nil {
+		return nil, errors.New("пользователь с таким email уже существует")
+	}
+
 	hashedPassword, err := auth.HashPassword(password)
 	if err != nil {
 		return nil, errors.New("ошибка хэширования пароля")
@@ -73,7 +79,7 @@ func (s *UserService) CreateUser(username, email, password, role string) (*model
 	return user, nil
 }
 
-func (s *UserService) UpdateUser(id int64, username, email, role, newPassword string) error { // int64
+func (s *UserService) UpdateUser(id int64, username, email, role, newPassword string) error {
 	if id <= 0 {
 		return errors.New("неверный ID пользователя")
 	}
@@ -90,6 +96,12 @@ func (s *UserService) UpdateUser(id int64, username, email, role, newPassword st
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
+	}
+
+	// Проверяем email на уникальность
+	existingUser, _ := s.userRepo.GetByEmail(email)
+	if existingUser != nil && existingUser.ID != id {
+		return errors.New("пользователь с таким email уже существует")
 	}
 
 	user.Username = username
@@ -112,16 +124,19 @@ func (s *UserService) UpdateUser(id int64, username, email, role, newPassword st
 	return s.userRepo.Update(user)
 }
 
-func (s *UserService) DeleteUser(id int64) error { // int64
+// DeleteUser - удаление пользователя (с проверкой последнего админа)
+func (s *UserService) DeleteUser(id int64) error {
 	if id <= 0 {
 		return errors.New("неверный ID пользователя")
 	}
 
+	// Получаем пользователя
 	user, err := s.userRepo.GetByID(id)
 	if err != nil {
 		return err
 	}
 
+	// Если это админ - проверяем, не последний ли он
 	if user.Role == "admin" {
 		adminCount, err := s.userRepo.CountAdmins()
 		if err != nil {

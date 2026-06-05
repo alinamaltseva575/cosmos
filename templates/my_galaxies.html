@@ -1,0 +1,77 @@
+{{define "my_galaxies"}}
+<div class="admin-header">
+    <h1>🌌 Мои галактики</h1>
+    <p>Управление созданными вами галактиками</p>
+</div>
+
+{{if .Success}}
+<div class="success-message">✅ {{.Success}}</div>
+{{end}}
+
+<div class="admin-actions-bar">
+    <a href="/dashboard" class="btn btn-secondary">← Назад в кабинет</a>
+    <a href="/my/galaxies/new" class="btn btn-success">+ Добавить галактику</a>
+</div>
+
+{{if .Galaxies}}
+<div class="admin-table-container">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Тип</th>
+                <th>Диаметр (св. лет)</th>
+                <th>Год открытия</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Galaxies}}
+            <tr>
+                <td>{{.ID}}</td>
+                <td>{{.Name}}</td>
+                <td>{{.Type}}</td>
+                <td>
+                    {{if .DiameterLy}}{{formatNumber
+                    .DiameterLy}}{{else}}-{{end}}
+                </td>
+                <td>
+                    {{if .DiscoveredYear}}{{.DiscoveredYear}}{{else}}-{{end}}
+                </td>
+                <td class="actions">
+                    <a
+                        href="/my/galaxies/delete/{{.ID}}"
+                        class="btn-small btn-delete"
+                        >🗑️</a
+                    >
+                    <a
+                        href="/my/galaxies/edit/{{.ID}}"
+                        class="btn-small btn-edit"
+                        >✏️</a
+                    >
+                    <a
+                        href="/galaxies/{{.ID}}"
+                        class="btn-small btn-view"
+                        target="_blank"
+                        >👁️</a
+                    >
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="empty-state">
+    <p>У вас пока нет галактик</p>
+    <a href="/my/galaxies/new" class="btn btn-success"
+        >Добавить первую галактику</a
+    >
+</div>
+{{end}}
+
+<div class="admin-info">
+    <h3>Всего ваших галактик: {{len .Galaxies}}</h3>
+</div>
+{{end}}

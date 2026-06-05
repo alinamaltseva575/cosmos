@@ -15,7 +15,18 @@
                 <a href="/" class="{{if eq .CurrentPage "home"}}active{{end}}">Главная</a>
                 <a href="/planets" class="{{if eq .CurrentPage "planets"}}active{{end}}">Планеты</a>
                 <a href="/galaxies" class="{{if eq .CurrentPage "galaxies"}}active{{end}}">Галактики</a>
-                <a href="/admin/login" class="admin-link">Админ</a>
+
+                {{if .IsAuth}}
+                    {{if eq .Role "admin"}}
+                        <a href="/admin" class="admin-link">👑 Админка</a>
+                    {{else}}
+                        <a href="/dashboard" class="{{if eq .CurrentPage "dashboard"}}active{{end}}">📁 Мой кабинет</a>
+                    {{end}}
+                    <a href="/logout">🚪 Выйти ({{.Username}})</a>
+                {{else}}
+                    <a href="/login" class="admin-link">🔐 Вход</a>
+                    <a href="/register">📝 Регистрация</a>
+                {{end}}
             </div>
         </nav>
     </header>
@@ -38,8 +49,29 @@
                 {{template "galaxies" .}}
             {{end}}
 
-        {{else if eq .CurrentPage "admin_login"}}
-            {{template "admin_login" .}}
+        {{else if eq .CurrentPage "register"}}
+            {{template "register" .}}
+
+        {{else if eq .CurrentPage "login"}}
+            {{template "login" .}}
+
+        {{else if eq .CurrentPage "dashboard"}}
+            {{template "dashboard" .}}
+
+        {{else if eq .CurrentPage "my_planets"}}
+            {{template "my_planets" .}}
+
+        {{else if eq .CurrentPage "my_galaxies"}}
+            {{template "my_galaxies" .}}
+
+        {{else if eq .CurrentPage "my_planet_form"}}
+            {{template "my_planet_form" .}}
+
+        {{else if eq .CurrentPage "my_galaxy_form"}}
+            {{template "my_galaxy_form" .}}
+
+        {{else if eq .CurrentPage "profile_delete_confirm"}}
+            {{template "profile_delete_confirm" .}}
 
         {{else if eq .CurrentPage "admin"}}
             {{template "admin_dashboard" .}}
@@ -47,20 +79,23 @@
         {{else if eq .CurrentPage "admin_planets"}}
             {{template "admin_planets" .}}
 
-        {{else if eq .CurrentPage "admin_planet_form"}}
-            {{template "admin_planet_form" .}}
-
         {{else if eq .CurrentPage "admin_galaxies"}}
             {{template "admin_galaxies" .}}
-
-        {{else if eq .CurrentPage "admin_galaxy_form"}}
-            {{template "admin_galaxy_form" .}}
 
         {{else if eq .CurrentPage "admin_users"}}
             {{template "admin_users" .}}
 
+        {{else if eq .CurrentPage "admin_planet_form"}}
+            {{template "admin_planet_form" .}}
+
+        {{else if eq .CurrentPage "admin_galaxy_form"}}
+            {{template "admin_galaxy_form" .}}
+
         {{else if eq .CurrentPage "admin_user_form"}}
             {{template "admin_user_form" .}}
+
+        {{else if eq .CurrentPage "admin_user_detail"}}
+            {{template "admin_user_detail" .}}
 
         {{else if eq .CurrentPage "admin_confirm_delete"}}
             {{template "admin_confirm_delete" .}}
@@ -74,6 +109,9 @@
 
     <footer>
         <p>© 2025 Cosmos Explorer. Изучайте вселенную с нами!</p>
+        {{if .IsAuth}}
+            <p>Вы вошли как: {{.Username}} ({{if eq .Role "admin"}}Администратор{{else}}Пользователь{{end}})</p>
+        {{end}}
     </footer>
 </body>
 </html>
